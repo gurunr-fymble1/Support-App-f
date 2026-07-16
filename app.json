@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Fymble Support",
+    "slug": "fymble-support",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/gym_support.jpg",
+    "scheme": "fymble-support",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/gym_support.jpg",
+        "backgroundImage": "./assets/images/gym_support.jpg",
+        "monochromeImage": "./assets/images/gym_support.jpg"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.gurunr.fymblesupport"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/gym_support.jpg"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/gym_support.jpg",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "backendUrl": "https://app.fittbot.com",
+      "router": {},
+      "eas": {
+        "projectId": "96da33a7-e387-436e-b8f6-833f3c3b1d56"
+      }
+    },
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "owner": "gurunr"
+  }
+}
