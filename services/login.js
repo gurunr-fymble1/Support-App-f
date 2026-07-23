@@ -2,6 +2,7 @@ import axios from "axios";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import apiConfig from "./apiConfig";
+import { showToast } from "./utils/Toaster";
 
 const BASE_URL = apiConfig.API_URL;
 
@@ -34,7 +35,8 @@ export const login = async (payload) => {
         await SecureStore.setItemAsync("name", name.toString());
       }
     } else {
-      console.warn("access_token missing. Full response:", JSON.stringify(response.data));
+      // console.warn("access_token missing. Full response:", JSON.stringify(response.data));
+      showToast("Error", "Authentication token is missing.", "error");
     }
 
 
@@ -45,8 +47,9 @@ export const login = async (payload) => {
       error?.response?.data?.detail ||
       "Login failed. Please try again.";
 
-    console.error("Error logging in:", errorMsg);
-    console.error("Full error response:", JSON.stringify(error?.response?.data));
+    // console.error("Error logging in:", errorMsg);
+    // console.error("Full error response:", JSON.stringify(error?.response?.data));
+    showToast("Error", errorMsg??error?.response?.data, "error");
     return { error: errorMsg };
   }
 };

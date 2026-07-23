@@ -10,7 +10,7 @@ if (backendUrl.startsWith("http://")) {
   API_URL = backendUrl;
 }
 
-API_URL = "https://42c2-27-7-187-172.ngrok-free.app"
+// API_URL = "https://unitalicized-nonexotic-see.ngrok-free.dev"
 
 export default {
   API_URL

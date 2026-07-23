@@ -8,6 +8,17 @@ export const HomePageStats = async () => {
   return response.data;
 };
 
+// for refund - get booking details
+export const getBookingDetails = async () => {
+  const response = await axiosInstance.get(`/support/payment/allBookings`);
+  return response.data;
+}
+
+export const updateStatus = async (data) => {
+  const response = await axiosInstance.put(`/support/payment/updateStatus`, data);
+  return response;
+}
+
 export const getMembershipBookings = async () => {
   const response = await axiosInstance.get(`/support/booking-msg/membership`);
   return response.data;

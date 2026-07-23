@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 20,
     overflow: "hidden",
-    borderWidth: 2,
+    borderWidth: 1,
     alignSelf: "center",
-    borderColor: "#0E8AE4",
+    borderColor: "#0ee420ff",
   },
   scanLine: {
   position: "absolute",

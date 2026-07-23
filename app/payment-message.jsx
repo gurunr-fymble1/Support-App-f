@@ -1,13 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Linking from "expo-linking";
-import { useEffect, useState } from "react";
 import { File, Paths } from "expo-file-system";
+import * as Linking from "expo-linking";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as Sharing from "expo-sharing";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Platform,
   ScrollView,
   StatusBar,
@@ -16,14 +18,13 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { router } from "expo-router";
 
 
 
 import * as DocumentPicker from "expo-document-picker";
-import { uploadPaymentMessageExcel, exportPaymentStatusExcel } from "../services/BookingMessageService";
-import { showToast } from "../services/utils/Toaster";
 import apiConfig from "../services/apiConfig";
+import { exportPaymentStatusExcel, uploadPaymentMessageExcel } from "../services/BookingMessageService";
+import { showToast } from "../services/utils/Toaster";
 
 export default function PaymentMessageScreen() {
   const [loading, setLoading] = useState(false)
@@ -33,6 +34,7 @@ export default function PaymentMessageScreen() {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [totalMessages, setTotalMessages] = useState(0);
   const [fileName, setFileName] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const storeLoadedData = async () => {
     try {
@@ -56,53 +58,26 @@ export default function PaymentMessageScreen() {
 
 
 
+  // This page Send payment details to the gym owners & update in Business Application
 
-  const uploadFile = async () => {
+  const startSendingMessages = async () => {
+    setTotalMessages(data.length);
+    setSendingMessages(true);
+    setLoading(true);
+
+    const wait = (ms) =>
+      new Promise(resolve =>
+        setTimeout(resolve, ms)
+      );
+
+    const updatedResult = [];
+
     try {
-      // console.log("uploading file")
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "application/vnd.ms-excel"],
-        copyToCacheDirectory: true,
-      });
-      // console.log("result", result)
-      if (result.canceled) {
-        return;
-      }
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        setCurrentMessageIndex(i + 1);
 
-
-      const file = result.assets[0];
-      setFileName(file.name);
-
-      const formData = new FormData();
-
-      formData.append("file", {
-        uri: file.uri,
-        name: file.name,
-        type: file.mimeType ||
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-
-      setLoading(true)
-      const results = await uploadPaymentMessageExcel(formData);
-
-      if (results.status == 200) {
-        await AsyncStorage.setItem("uploaded_file_name", file.name);
-        setTotalMessages(results.data.length);
-        setSendingMessages(true);
-
-        const wait = (ms) =>
-          new Promise(resolve =>
-            setTimeout(resolve, ms)
-          );
-
-        const updatedResult = []
-        setCurrentMessageIndex(updatedResult.length + 1)
-
-        for (const item of results.data) {
-
-          const message =
-        `Hi Business Partner,
+        const message = `Hi Business Partner,
 
 Greetings from Fymble.
 
@@ -117,42 +92,83 @@ Thank you for your continued partnership.
 
 Team Fymble`;
 
-      const sendResult = await sendWhatsappMessage(item.phone, message);
+        const sendResult = await sendWhatsappMessage(item.phone, message);
 
-      updatedResult.push({
-        ...item,
-        message: message,
-        sent_at: new Date(),
-        status: sendResult.status
-      })
+        updatedResult.push({
+          ...item,
+          message: message,
+          sent_at: new Date(),
+          status: sendResult ? sendResult.status : "Failed"
+        });
 
-      setData([...updatedResult])
-      await AsyncStorage.setItem("payment_status", JSON.stringify([...updatedResult]))
+        setData([...updatedResult]);
+        await AsyncStorage.setItem("payment_status", JSON.stringify([...updatedResult]));
 
-      await wait(8000);
+        if (i < data.length - 1) {
+          await wait(8000);
+        }
+      }
+      showToast("Success", "All messages processed", "success");
+    } catch (err) {
+      showToast("Error", err.message || "Error while sending messages", "error");
+    } finally {
+      setSendingMessages(false);
+      setLoading(false);
     }
+  };
 
+  const uploadFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel"],
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled) {
+        return;
+      }
+
+      const file = result.assets[0];
+      setFileName(file.name);
+
+      const formData = new FormData();
+      formData.append("file", {
+        uri: file.uri,
+        name: file.name,
+        type: file.mimeType ||
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      setLoading(true);
+      const results = await uploadPaymentMessageExcel(formData);
+
+      if (results.status == 200) {
+        await AsyncStorage.setItem("uploaded_file_name", file.name);
+        const initialData = results.data.map(item => ({
+          ...item,
+          status: "Pending",
+          sent_at: null,
+          message: ""
+        }));
+        setData(initialData);
+        await AsyncStorage.setItem("payment_status", JSON.stringify(initialData));
+        setTotalMessages(results.data.length);
+        setShowConfirmModal(true);
       }
       else {
         setResponse("")
         const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
         setFileName(storedFileName || "");
-      }
-      setResponse(response.data)
-
-      if (results?.status == 200) {
-        showToast("Success", results.message, "success")
-      } else {
-        showToast("Error", results.message, "error")
+        setResponse(results.data || []);
+        showToast("Error", results.message, "error");
       }
     } catch (error) {
-      showToast("Error", error.message, "error")
+      showToast("Error", error.message, "error");
       const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
       setFileName(storedFileName || "");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-
   };
 
 
@@ -187,7 +203,12 @@ Team Fymble`;
         error: null
       }
     } catch (error) {
-      showToast("Error", error, "error")
+      // console.log("-----_error",error)
+      showToast("Error", error.message || error, "error")
+      return {
+        status: "Failed",
+        error: error.message || error
+      };
     }
   }
 
@@ -219,7 +240,7 @@ Team Fymble`;
         );
 
         await Sharing.shareAsync(downloadResult.uri);
-        
+
         showToast("Success", "Excel file downloaded successfully.", "success");
       } else {
         showToast("Error", res.message || "Failed to generate Excel file", "error");
@@ -241,10 +262,10 @@ Team Fymble`;
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
-      
+
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => router.back()} 
+        <TouchableOpacity
+          onPress={() => router.back()}
           style={styles.backButton}
           activeOpacity={0.7}
         >
@@ -265,6 +286,7 @@ Team Fymble`;
             <ActivityIndicator size="large" color="#4f46e5" />
           ) : (
             <View style={styles.uploadContent}>
+
               <View style={styles.uploadIconContainer}>
                 <Ionicons name="cloud-upload-outline" size={32} color="#4f46e5" />
               </View>
@@ -273,14 +295,14 @@ Team Fymble`;
             </View>
           )}
         </TouchableOpacity>
-        
+
 
         {fileName ? (
           <View style={styles.fileBadge}>
             <Ionicons name="document-text-outline" size={20} color="#475569" />
             <Text style={styles.fileNameText} numberOfLines={1} ellipsizeMode="middle">
-              {fileName}
-            </Text>
+                  {fileName}
+                </Text>
           </View>
         ) : null}
 
@@ -299,7 +321,7 @@ Team Fymble`;
                 <Text style={styles.exportButtonText}>Export Excel</Text>
               </TouchableOpacity>
             </View>
-            
+
             {data.map((item, index) => (
               <View key={`${item.phone}-${index}`} style={styles.transactionCard}>
                 <View style={styles.cardHeader}>
@@ -309,14 +331,18 @@ Team Fymble`;
                     </Text>
                     <Text style={styles.clientPhone}>{item.phone}</Text>
                   </View>
-                  
+
                   <View style={[
                     styles.statusBadge,
-                    item.status === "Success" ? styles.badgeSuccess : styles.badgeFailed
+                    item.status === "Success"
+                      ? styles.badgeSuccess
+                      : (item.status === "Pending" ? styles.badgePending : styles.badgeFailed)
                   ]}>
                     <Text style={[
                       styles.statusBadgeText,
-                      item.status === "Success" ? styles.textSuccess : styles.textFailed
+                      item.status === "Success"
+                        ? styles.textSuccess
+                        : (item.status === "Pending" ? styles.textPending : styles.textFailed)
                     ]}>
                       {item.status || "Pending"}
                     </Text>
@@ -344,6 +370,72 @@ Team Fymble`;
           </View>
         )}
       </ScrollView>
+
+      <Modal
+        visible={showConfirmModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowConfirmModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalIconContainer}>
+              <Ionicons name="logo-whatsapp" size={32} color="#25D366" />
+            </View>
+            <Text style={styles.modalTitle}>Send Messages?</Text>
+            <Text style={styles.modalDescription}>
+              Successfully processed {data.length} records. Would you like to start sending WhatsApp messages automatically?
+            </Text>
+            
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => {
+                  setShowConfirmModal(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalSendButton]}
+                onPress={() => {
+                  setShowConfirmModal(false);
+                  startSendingMessages();
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalSendButtonText}>Send</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={sendingMessages}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <ActivityIndicator size="large" color="#4f46e5" style={{ marginBottom: 16 }} />
+            <Text style={styles.modalTitle}>Sending Messages</Text>
+            <Text style={styles.modalDescription}>
+              Sending {currentMessageIndex} of {totalMessages}...
+            </Text>
+            <View style={styles.progressBarContainer}>
+              <View 
+                style={[
+                  styles.progressBarFill, 
+                  { width: `${totalMessages > 0 ? (currentMessageIndex / totalMessages) * 100 : 0}%` }
+                ]} 
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 };
@@ -355,7 +447,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'ios' ? 56 : 44,
+    paddingTop: Platform.OS === 'ios' ? 56 : 34,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -545,6 +637,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 5,
   },
   footerDetail: {
     flex: 1,
@@ -566,6 +659,172 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#4f46e5',
+  },
+  badgePending: {
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+  },
+  textPending: {
+    color: '#f59e0b',
+  },
+  selectedFileContainer: {
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+    width: '100%',
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  selectedFileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  excelIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#dcfce7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  selectedFileDetails: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  selectedFileLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#15803d',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  selectedFileNameText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#166534',
+    paddingRight: 8,
+  },
+  clearFileButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedFileStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#dcfce7',
+    gap: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#25D366',
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#166534',
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(24, 24, 27, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 24,
+    width: '100%',
+    maxWidth: 320,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(37, 211, 102, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#18181b',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#71717a',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCancelButton: {
+    backgroundColor: '#f4f4f5',
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+  },
+  modalCancelButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#71717a',
+  },
+  modalSendButton: {
+    backgroundColor: '#25D366',
+  },
+  modalSendButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  progressBarContainer: {
+    height: 6,
+    width: '100%',
+    backgroundColor: '#f4f4f5',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#25D366',
+    borderRadius: 3,
   },
 });
 

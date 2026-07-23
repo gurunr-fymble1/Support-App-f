@@ -353,20 +353,30 @@ Thank you.
                   </View>
                 </View>
 
+                {booking.pack_size >= 7 && (
                 <View style={styles.infoItem}>
                   <View style={styles.infoIcon}>
                     <Ionicons name="calendar" size={18} color="#06b6d4" />
                   </View>
                   <View style={styles.infoTextContainer}>
-                    <Text style={styles.infoLabel}>{booking.pack_size < 7 ? "Scheduled Date" : "Valid From"}</Text>
-                    <Text style={styles.infoValue}>{booking.pack_size < 7 ? booking.scheduled_dates : booking.valid_from}</Text>
+                    <Text style={styles.infoLabel}>Valid From</Text>
+                    <Text style={styles.infoValue}>{booking.valid_from}</Text>
                   </View>
-                  {booking.pack_size >= 7 && (
                     <View style={styles.infoTextContainer}>
                       <Text style={styles.infoLabel}>Valid Upto</Text>
                       <Text style={styles.infoValue}>{booking.valid_until}</Text>
                     </View>
-                  )}
+                </View>
+                )}
+
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIcon}>
+                    <Ionicons name="calendar" size={18} color="#06b6d4" />
+                  </View>
+                  <View style={styles.infoTextContainer}>
+                    <Text style={styles.infoLabel}>Scheduled Date</Text>
+                    <Text style={styles.infoValue}>{booking.scheduled_dates}</Text>
+                  </View>
                 </View>
 
                 <View style={styles.infoRowInline}>
@@ -426,7 +436,7 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingTop: 30,
-    paddingBottom: 20,
+    paddingBottom: 10,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,

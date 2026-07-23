@@ -494,7 +494,7 @@ export default function RescheduleDailyPassScreen() {
             style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
-            <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
             <View style={Styles.container}>
 
                 {/* ── Custom Header ────────────────────────────────────────── */}
@@ -516,7 +516,7 @@ export default function RescheduleDailyPassScreen() {
 
                 {/* ── Search Container ─────────────────────────────────────── */}
                 <View style={Styles.searchSection}>
-                    <Text style={Styles.searchLabel}>Search client daily passes by contact number</Text>
+                    <Text style={Styles.searchLabel}>Search client bookings by contact number</Text>
                     <View style={Styles.searchRow}>
                         <View style={[
                             Styles.inputWrapper,
@@ -1201,7 +1201,7 @@ export default function RescheduleDailyPassScreen() {
                                     <Text style={Styles.modalTitle}>Reschedule Session</Text>
                                     <Text style={Styles.modalSubtitle}>Reschedule session Date and Time</Text>
                                 </View>
-                                <View style={Styles.modalContent}>
+                                <ScrollView showsVerticalScrollIndicator={false} style={Styles.modalContent} contentContainerStyle={{ paddingBottom: 24 }}>
                                     <Text style={Styles.modalLabel}>Sessions Scheduled Dates</Text>
                                     <ScrollView
                                         horizontal
@@ -1404,7 +1404,7 @@ export default function RescheduleDailyPassScreen() {
                                         </TouchableOpacity>
                                     </View>
 
-                                </View>
+                                </ScrollView>
                             </View>
 
 
@@ -1432,7 +1432,7 @@ const Styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingHorizontal: 16,
         paddingTop: Platform.OS === "ios" ? 48 : 36,
-        paddingBottom: 16,
+        paddingBottom: 12,
         backgroundColor: "#ffffff",
         borderBottomWidth: 1,
         borderBottomColor: "#f1f5f9",
@@ -2020,8 +2020,8 @@ const Styles = StyleSheet.create({
     },
     timeSlotButtonNew: {
 
-        backgroundColor: "#60ef60ff",
-        borderColor: "#121912ff",
+        backgroundColor: "#ff0303ff",
+        borderColor: "#ffffffff",
     },
     timeSlotText: {
         color: "#475569",

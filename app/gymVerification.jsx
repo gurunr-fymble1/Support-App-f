@@ -129,14 +129,14 @@ export default function GymVerificationScreen() {
         }
     };
 
-    const handleSearch = () => {
-        fetchData(searchQuery, true);
-    };
+    // const handleSearch = () => {
+    //     fetchData(searchQuery, true);
+    // };
 
     return (
         <View style={Styles.container}>
             {/* ── Search ────────────────────────────────────────────────── */}
-            <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+            <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
             <View style={Styles.header}>
                 <Text style={Styles.headerText}>Gym Verification</Text>
             </View>
@@ -169,7 +169,7 @@ export default function GymVerificationScreen() {
                     activeOpacity={0.8}
                 >
                     <Ionicons name="close-circle-outline" size={16} color={!verifiedTab ? "#ffffff" : "#64748b"} />
-                    <Text style={[Styles.tabText, !verifiedTab && Styles.activeTabText]}>Unverified</Text>
+                    <Text style={[Styles.tabText, !verifiedTab && Styles.activeTabText]}>Unverified Gyms</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[Styles.tabButton, verifiedTab && Styles.activeTabButton]}
@@ -177,7 +177,7 @@ export default function GymVerificationScreen() {
                     activeOpacity={0.8}
                 >
                     <Ionicons name="checkmark-circle-outline" size={16} color={verifiedTab ? "#ffffff" : "#64748b"} />
-                    <Text style={[Styles.tabText, verifiedTab && Styles.activeTabText]}>Verified</Text>
+                    <Text style={[Styles.tabText, verifiedTab && Styles.activeTabText]}>Verified Gyms</Text>
                 </TouchableOpacity>
             </View>
 
@@ -414,7 +414,7 @@ export default function GymVerificationScreen() {
 const Styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f8fafc",
+        backgroundColor: "#ffffff",
     },
     header: {
         flexDirection: "row",
@@ -425,7 +425,7 @@ const Styles = StyleSheet.create({
         paddingVertical: 18,
         borderBottomWidth: 1,
         borderBottomColor: "#f1f5f9",
-        paddingTop: Platform.OS === "ios" ? 50 : 40,
+        paddingTop: Platform.OS === "ios" ? 50 : 35,
     },
     headerText: {
         color: "#0f172a",

@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
 import { Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import logo_home from "../assets/images/logo_home.png";
-import {HomePageStats} from "../services/BookingMessageService";
+import { HomePageStats } from "../services/BookingMessageService";
 import { showToast } from "../services/utils/Toaster";
 
 
@@ -29,12 +29,11 @@ export default function HomeScreen() {
   );
 
   const UserName = async () => {
-    try{
+    try {
       const name = await SecureStore.getItemAsync("name")
       setUser(name)
     }
-    catch (error)
-    {
+    catch (error) {
       showToast("error", "Error", "Unable to fetch user name!")
     }
   }
@@ -74,13 +73,13 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
-      
+
       {logoutBtn && (
         <>
-          <TouchableOpacity 
-            style={styles.overlay} 
-            activeOpacity={1} 
-            onPress={() => setLogoutBtn(false)} 
+          <TouchableOpacity
+            style={styles.overlay}
+            activeOpacity={1}
+            onPress={() => setLogoutBtn(false)}
           />
           <View style={styles.dropdown}>
             <TouchableOpacity onPress={handleLogout} style={styles.logoutItem} activeOpacity={0.75}>
@@ -102,9 +101,9 @@ export default function HomeScreen() {
             <Text style={styles.logoRed}>Fy</Text>
             <Text style={styles.logoCharcoal}>mble Support</Text>
           </Text>
-          
-          <TouchableOpacity 
-            onPress={() => setLogoutBtn(!logoutBtn)} 
+
+          <TouchableOpacity
+            onPress={() => setLogoutBtn(!logoutBtn)}
             style={styles.headerIconContainer}
             activeOpacity={0.85}
           >
@@ -114,7 +113,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={styles.greeting}>Welcome back  <Text style={{color: "#f43f5e",fontSize:18, fontWeight: "bold", textTransform: "capitalize",}}>{user || "Support Admin"}</Text></Text>
+          <Text style={styles.greeting}>Welcome back  <Text style={{ color: "#f43f5e", fontSize: 18, fontWeight: "bold", textTransform: "capitalize", }}>{user || "Support Admin"}</Text></Text>
         </View>
       </LinearGradient>
 
@@ -122,24 +121,24 @@ export default function HomeScreen() {
         {/* Quick Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(99, 102, 241, 0.08)" }]}>
-              <Ionicons name="pricetags-outline" size={20} color="#6366f1" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(244, 63, 94, 0.08)" }]}>
+              <Ionicons name="pricetags-outline" size={20} color="#f43f5e" />
             </View>
             <Text style={styles.statNumber}>{countD}</Text>
             <Text style={styles.statLabel}>Daily Pass</Text>
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(245, 158, 11, 0.08)" }]}>
-              <Ionicons name="calendar-outline" size={20} color="#f59e0b" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(139, 92, 246, 0.08)" }]}>
+              <Ionicons name="calendar-outline" size={20} color="#8b5cf6" />
             </View>
             <Text style={styles.statNumber}>{countS}</Text>
             <Text style={styles.statLabel}>Sessions</Text>
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(16, 185, 129, 0.08)" }]}>
-              <Ionicons name="shield-checkmark-outline" size={20} color="#10b981" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(6, 182, 212, 0.08)" }]}>
+              <Ionicons name="barbell-outline" size={20} color="#06b6d4" />
             </View>
             <Text style={styles.statNumber}>{countM}</Text>
             <Text style={styles.statLabel}>Membership</Text>
@@ -164,7 +163,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>QR Code Scanner</Text>
-              <Text style={styles.cardSubtitle}>Scan to check in support tickets</Text>
+              <Text style={styles.cardSubtitle}>Scan and verify Gym QR's</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
           </View>
@@ -200,7 +199,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Sessions</Text>
-              <Text style={styles.cardSubtitle}>Book & manage support sessions</Text>
+              <Text style={styles.cardSubtitle}>View & manage sessions</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
           </View>
@@ -226,8 +225,8 @@ export default function HomeScreen() {
       </ScrollView>
 
       <View style={styles.footerView}>
-        <TouchableOpacity 
-          onPress={() => router.push("/rescheduleDailypass")} 
+        <TouchableOpacity
+          onPress={() => router.push("/rescheduleDailypass")}
           style={styles.footerButton}
           activeOpacity={0.7}
         >
@@ -235,8 +234,8 @@ export default function HomeScreen() {
           <Text style={styles.footerText}>Reschedule</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={() => router.push("/gymVerification")} 
+        <TouchableOpacity
+          onPress={() => router.push("/gymVerification")}
           style={styles.footerButton}
           activeOpacity={0.7}
         >
@@ -244,13 +243,22 @@ export default function HomeScreen() {
           <Text style={styles.footerText}>Gym Verify</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={() => router.push("/payment-message")} 
+        <TouchableOpacity
+          onPress={() => router.push("/payment-message")}
           style={styles.footerButton}
           activeOpacity={0.7}
         >
           <Ionicons name="wallet-outline" size={22} color="#71717a" style={styles.footerIcon} />
           <Text style={styles.footerText}>Payment</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => router.push("/refund")}
+          style={styles.footerButton}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="cash-outline" size={22} color="#71717a" style={styles.footerIcon} />
+          <Text style={styles.footerText}>Refund</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -263,8 +271,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa",
   },
   headerGradient: {
-    paddingTop: Platform.OS === "ios" ? 56 : 34,
-    paddingBottom: 24,
+    paddingTop: Platform.OS === "ios" ? 56 : 28,
+    paddingBottom: 20,
     paddingHorizontal: 24,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
@@ -281,10 +289,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 2,
   },
   welcomeContainer: {
-    marginTop: 2,
+    marginTop: 0,
   },
   dropdown: {
     position: "absolute",
