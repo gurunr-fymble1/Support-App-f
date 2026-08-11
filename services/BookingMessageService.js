@@ -1,3 +1,4 @@
+import * as SecureStore from "expo-secure-store";
 import apiConfig from "./apiConfig";
 import axiosInstance from "./axiosInstance";
 
@@ -19,13 +20,14 @@ export const updateStatus = async (data) => {
   return response;
 }
 
+// bookings 
 export const getMembershipBookings = async () => {
   const response = await axiosInstance.get(`/support/booking-msg/membership`);
   return response.data;
 }
 
 export const getSessionBookings = async () => {
-  const response = await axiosInstance.get(`${BASE_URL}/support/booking-msg/sessions`);
+  const response = await axiosInstance.get(`/support/booking-msg/sessions`);
   return response.data;
 };
 
@@ -35,32 +37,33 @@ export const getDailyPassBookings = async () => {
   return response.data;
 };
 
-
-// export const paymentsMessage = async () => {
-//   const response = await axiosInstance.post(`/support/payment/message`)
-//   return response.data;
-// }
-
+// payment message to gym owners
 export const uploadPaymentMessageExcel = async (formData) => {
-  // console.log("FROM DAATAAAA", formData)
-  const response = await axiosInstance.post(`/support/payment/message`, formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
+  const token = await SecureStore.getItemAsync("access_token");
+  const response = await fetch(`${BASE_URL}/support/payment/message`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      "Authorization": token ? `Bearer ${token}` : "",
+      "Accept": "application/json",
     },
-  );
-  // console.log("API RESPONSE", response)
-  return response.data;
+  });
+
+  if (!response.ok) {
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { message: "Upload failed with status " + response.status };
+    }
+    throw new Error(errorData.message || "Upload failed");
+  }
+
+  return await response.json();
 };
 
 export const exportPaymentStatusExcel = async (data) => {
-  // console.log("DATA FOR EXCEL", data)
-  const response = await axiosInstance.post(`/support/payment/export-excel`, 
-    { data: data },
-    {
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
-  // console.log("EXPORT RESPONSE", response)
+  const response = await axiosInstance.post(`/support/payment/export-excel`, { data: data });
   return response.data;
 };
 

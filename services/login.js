@@ -35,7 +35,6 @@ export const login = async (payload) => {
         await SecureStore.setItemAsync("name", name.toString());
       }
     } else {
-      // console.warn("access_token missing. Full response:", JSON.stringify(response.data));
       showToast("Error", "Authentication token is missing.", "error");
     }
 
@@ -47,8 +46,6 @@ export const login = async (payload) => {
       error?.response?.data?.detail ||
       "Login failed. Please try again.";
 
-    // console.error("Error logging in:", errorMsg);
-    // console.error("Full error response:", JSON.stringify(error?.response?.data));
     showToast("Error", errorMsg??error?.response?.data, "error");
     return { error: errorMsg };
   }

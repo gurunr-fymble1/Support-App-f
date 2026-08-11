@@ -66,8 +66,6 @@ When the client arrives, please verify their entry by tapping the "Scan Daily Pa
 
 If you need any assistance, feel free to reach out.
 
-Please Refer the attached Video and QR code.
-
 Thank you.
 *Team Fymble*`
     } else if (booking.pack_size >= 7) {
@@ -84,8 +82,6 @@ You can view the booking details in the Bookings tab of the Fymble Business App.
 When the client arrives, please verify their entry by tapping the **"Scan Daily Pass & Fitness Class Pass"** button on the Home Page and scanning their pass. Alternatively, you can show the QR code below to the client, and they can scan it using the Fymble App. You may use whichever method is most convenient for the client check-in process.
 
 If you need any assistance, please feel free to reach out.
-
-Please refer to the attached video and QR code.
 
 Thank you.
 *Team Fymble*`

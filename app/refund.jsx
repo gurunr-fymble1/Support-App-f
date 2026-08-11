@@ -44,7 +44,7 @@ export default function RefundBookingScreen() {
         try {
             setLoading(true)
             const res = await updateStatus({payment_id: selectedBooking.payment_id})
-            console.log(res.data)
+            // console.log(res.data)
             
             // Axios returns the response body in res.data, which has our FastAPI wrapper status (200 or 400)
             if (res.data && res.data.status !== 200) {

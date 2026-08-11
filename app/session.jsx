@@ -75,10 +75,7 @@ When the client arrives, please verify their entry by tapping the "Scan Daily Pa
 
 If you need any assistance, please feel free to reach out.
 
-Please refer to the attached video and QR code.
-
-Thank you.
-
+Thank you
 *Team Fymble*`;
 
     } else if (booking.pack_size == 7 || booking.pack_size == 14) {
@@ -94,10 +91,7 @@ When the client arrives, please verify their entry by tapping the "Scan Daily Pa
 
 If you need any assistance, please feel free to reach out.
 
-Please refer to the attached video and QR code.
-
-Thank you.
-
+Thank you
 *Team Fymble*`;
 
     } else {    
@@ -112,9 +106,7 @@ When the client arrives, please verify their entry by tapping the "Scan Daily Pa
 
 If you need any assistance, feel free to reach out.
 
-Please Refer the attached Video and QR code.
-
-Thank you.
+Thank you
 *Team Fymble*`;
     }
 

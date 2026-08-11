@@ -88,8 +88,6 @@ const LoginScreen = () => {
         password: password,
       });
 
-      // console.log("dataaaaaaaaaaaaaaa:", data);
-
       if (data?.error) {
         setError(data.error);
         return;

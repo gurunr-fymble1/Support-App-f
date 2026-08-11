@@ -131,9 +131,26 @@ Team Fymble`;
       const file = result.assets[0];
       setFileName(file.name);
 
+      // Copy content:// URI to a local file in cache directory using the modern File API.
+      // This is crucial on Android because React Native's FormData/XMLHttpRequest
+      // cannot stream/read directly from content:// URIs during upload.
+      const sourceFile = new File(file.uri);
+      const localFile = new File(Paths.cache, file.name);
+
+      // Delete target cache file if it already exists to prevent FileSystemFile.copy from failing
+      if (localFile.exists) {
+        localFile.delete();
+      }
+
+      await sourceFile.copy(localFile);
+
+      // Decoded path is required on Android to avoid file uploader issues with %20 and special characters
+      const localUri = Platform.OS === 'android' ? decodeURIComponent(localFile.uri) : localFile.uri;
+
+
       const formData = new FormData();
       formData.append("file", {
-        uri: file.uri,
+        uri: localUri,
         name: file.name,
         type: file.mimeType ||
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -141,6 +158,7 @@ Team Fymble`;
 
       setLoading(true);
       const results = await uploadPaymentMessageExcel(formData);
+      // console.log("------results", results)
 
       if (results.status == 200) {
         await AsyncStorage.setItem("uploaded_file_name", file.name);
@@ -156,6 +174,7 @@ Team Fymble`;
         setShowConfirmModal(true);
       }
       else {
+        // console.log("------else",results)
         setResponse("")
         const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
         setFileName(storedFileName || "");
@@ -163,6 +182,7 @@ Team Fymble`;
         showToast("Error", results.message, "error");
       }
     } catch (error) {
+      // console.log("------error", error.message)
       showToast("Error", error.message, "error");
       const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
       setFileName(storedFileName || "");

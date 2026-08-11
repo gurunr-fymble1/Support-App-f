@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   footerView: {
     position: "absolute",
-    bottom: 24,
+    bottom: 10,
     left: 20,
     right: 20,
     height: 72,

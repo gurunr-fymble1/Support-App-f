@@ -25,9 +25,8 @@ export const RescheduleSession = async (contact_number) => {
 };
 
 export const GetAvailableSessionSlots = async (payload) => {
-  console.log("payload::", payload)
+  // console.log("payload::", payload)
   const response = await axiosInstance.get(`/support/reschedule/sessions/available-slots`, { params: payload });
-  // console.log(response.data)
   return response.data;
 };
 
