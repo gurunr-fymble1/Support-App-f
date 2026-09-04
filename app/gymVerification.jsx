@@ -143,18 +143,18 @@ export default function GymVerificationScreen() {
 
             <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
                 <View style={Styles.searchContainer}>
-                    <TextInput
-                        style={[
-                            Styles.searchInput,
+                        <TextInput
+                            style={[
+                                Styles.searchInput,
                             isFocused && Styles.searchInputFocused
-                        ]}
-                        placeholder="Enter Gym ID or Gym name"
-                        placeholderTextColor="#94a3b8"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(false)}
-                    />
+                            ]}
+                            placeholder="Enter Gym ID or Gym name"
+                            placeholderTextColor="#94a3b8"
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                        />
                 </View>
                 <View style={{ paddingHorizontal: 2, paddingBottom: 1, flexDirection: "row", justifyContent: "center", shadowColor: "#000" }}>
                     <Text style={Styles.searchContanerText}>{data.length} Gyms Found</Text>

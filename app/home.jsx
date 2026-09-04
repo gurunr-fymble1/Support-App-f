@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useCallback, useState } from "react";
 import { Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import logo_home from "../assets/images/logo_home.png";
@@ -98,8 +99,8 @@ export default function HomeScreen() {
       >
         <View style={styles.headerTopRow}>
           <Text style={styles.logoText}>
-            <Text style={styles.logoRed}>Fy</Text>
-            <Text style={styles.logoCharcoal}>mble Support</Text>
+            <Text style={styles.logoRed}>Fymble </Text>
+            <Text style={styles.logoCharcoal}>Support</Text>
           </Text>
 
           <TouchableOpacity
@@ -113,7 +114,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={styles.greeting}>Welcome back  <Text style={{ color: "#f43f5e", fontSize: 18, fontWeight: "bold", textTransform: "capitalize", }}>{user || "Support Admin"}</Text></Text>
+          <Text style={styles.greeting}>Welcome back  <Text style={{ color: "#ff5757", fontSize: 18, fontWeight: "bold", textTransform: "capitalize", }}>{user || "Support Admin"}</Text></Text>
         </View>
       </LinearGradient>
 
@@ -147,28 +148,11 @@ export default function HomeScreen() {
 
         {/* Section Title */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>View Bookings</Text>
           <View style={styles.sectionDivider} />
         </View>
 
-        {/* QR Scanner Card */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => router.push("/scan")}
-          activeOpacity={0.7}
-        >
-          <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(16, 185, 129, 0.08)" }]}>
-              <Ionicons name="qr-code-outline" size={24} color="#10b981" />
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.cardTitle}>QR Code Scanner</Text>
-              <Text style={styles.cardSubtitle}>Scan and verify Gym QR's</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
-          </View>
-        </TouchableOpacity>
-
+        
         {/* Daily Pass Card */}
         <TouchableOpacity
           style={styles.actionCard}
@@ -222,6 +206,60 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
           </View>
         </TouchableOpacity>
+
+        {/* Gym Review Card */}
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/gymReview")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.cardContent}>
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(252, 150, 150, 0.24)" }]}>
+              <MaterialIcons name="reviews" size={24} color="#ff5757" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.cardTitle}>Review Gyms</Text>
+              <Text style={styles.cardSubtitle}>Write about Gym/Owner</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+          </View>
+        </TouchableOpacity>
+
+        {/* QR Scanner Card */}
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/scan")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.cardContent}>
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(16, 185, 129, 0.08)" }]}>
+              <Ionicons name="qr-code-outline" size={24} color="#10b981" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.cardTitle}>QR Code Scanner</Text>
+              <Text style={styles.cardSubtitle}>Scan and verify Gym QR's</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+          </View>
+        </TouchableOpacity>
+
+        {/* Custom Message Card */}
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/custom-message")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.cardContent}>
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(37, 211, 102, 0.08)" }]}>
+              <Ionicons name="chatbubble-ellipses-outline" size={24} color="#25D366" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.cardTitle}>Custom Message</Text>
+              <Text style={styles.cardSubtitle}>Send custom WhatsApp messages</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+          </View>
+        </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.footerView}>
@@ -249,7 +287,7 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <Ionicons name="wallet-outline" size={22} color="#71717a" style={styles.footerIcon} />
-          <Text style={styles.footerText}>Payment</Text>
+          <Text style={styles.footerText}>Payment-Msg</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -289,7 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 2,
+    marginBottom: -2,
   },
   welcomeContainer: {
     marginTop: 0,
@@ -345,7 +383,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   logoRed: {
-    color: "#f43f5e",
+    color: "#ff5757",
   },
   logoCharcoal: {
     color: "#18181b",

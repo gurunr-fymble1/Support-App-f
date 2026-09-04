@@ -8,18 +8,16 @@ import * as Sharing from "expo-sharing";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Modal,
   Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
-
-
 
 import * as DocumentPicker from "expo-document-picker";
 import apiConfig from "../services/apiConfig";
@@ -27,10 +25,12 @@ import { exportPaymentStatusExcel, uploadPaymentMessageExcel } from "../services
 import { showToast } from "../services/utils/Toaster";
 
 export default function PaymentMessageScreen() {
-  const [loading, setLoading] = useState(false)
-  const [response, setResponse] = useState([])
-  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState([]);
+  const [data, setData] = useState([]);
   const [sendingMessages, setSendingMessages] = useState(false);
+  const [singleSendingIndex, setSingleSendingIndex] = useState(null);
+  const [openAltIndex, setOpenAltIndex] = useState(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [totalMessages, setTotalMessages] = useState(0);
   const [fileName, setFileName] = useState("");
@@ -38,27 +38,70 @@ export default function PaymentMessageScreen() {
 
   const storeLoadedData = async () => {
     try {
-      const storageData = await AsyncStorage.getItem("payment_status")
+      const storageData = await AsyncStorage.getItem("payment_status");
       if (storageData) {
-        setData(JSON.parse(storageData))
+        setData(JSON.parse(storageData));
       }
-      const storedFileName = await AsyncStorage.getItem("uploaded_file_name")
+      const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
       if (storedFileName) {
-        setFileName(storedFileName)
+        setFileName(storedFileName);
       }
     } catch (error) {
-      showToast("Error", "Failed to get previous payment data", "error")
-      // console.log(error)
+      showToast("Error", "Failed to get previous payment data", "error");
     }
-  }
+  };
 
   useEffect(() => {
     storeLoadedData();
-  }, [])
+  }, []);
 
+  const sendWhatsappMessage = async (phone, message) => {
+    try {
+      if (!phone) {
+        return {
+          status: "Failed",
+          error: "Invalid Contact"
+        };
+      }
 
+      const cleanPhone = String(phone).replace(/[^0-9]/g, "");
+      let formattedPhone;
+      if (cleanPhone.length === 10) {
+        formattedPhone = "91" + cleanPhone;
+      } else if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
+        formattedPhone = cleanPhone;
+      } else {
+        return {
+          status: "Failed",
+          error: "Invalid Contact"
+        };
+      }
 
-  // This page Send payment details to the gym owners & update in Business Application
+      const checkUrl = `whatsapp://send?phone=${formattedPhone}`;
+      const openWhats = await Linking.canOpenURL(checkUrl);
+
+      if (!openWhats) {
+        return {
+          status: "Failed",
+          error: "WhatsApp not installed"
+        };
+      }
+
+      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      await Linking.openURL(url);
+
+      return {
+        status: "Success",
+        error: null
+      };
+    } catch (error) {
+      showToast("Error", error.message || error, "error");
+      return {
+        status: "Failed",
+        error: error.message || error
+      };
+    }
+  };
 
   const startSendingMessages = async () => {
     setTotalMessages(data.length);
@@ -92,13 +135,14 @@ Thank you for your continued partnership.
 
 Team Fymble`;
 
-        const sendResult = await sendWhatsappMessage(item.phone, message);
+        const targetPhone = item.alternative_phone || item.phone;
+        const sendResult = await sendWhatsappMessage(targetPhone, message);
 
         updatedResult.push({
           ...item,
           message: message,
           sent_at: new Date(),
-          status: sendResult ? sendResult.status : "Failed"
+          status: sendResult && sendResult.status === "Success" ? "Success" : "Failed"
         });
 
         setData([...updatedResult]);
@@ -117,6 +161,79 @@ Team Fymble`;
     }
   };
 
+  const sendSingleMessage = async (index) => {
+    const item = data[index];
+    if (!item) return;
+
+    const targetPhone = (item.alternative_phone && String(item.alternative_phone).trim() !== "")
+      ? item.alternative_phone
+      : item.phone;
+
+    if (!targetPhone || String(targetPhone).trim() === "") {
+      showToast("Error", "Please enter a valid contact number", "error");
+      return;
+    }
+
+    try {
+      setSingleSendingIndex(index);
+
+      const message = `Hi Business Partner,
+
+Greetings from Fymble.
+
+We would like to inform you that ${item.booking_count} ${item.booking_type} Booking had been happened at your gym, ${item.gym}, ${item.date_at ? `on ${item.date_at}` : `from ${item.date_from} to ${item.date_to}`} .
+
+The payout amount for this booking is ₹${item.amount}.
+Your payment has been successfully processed.
+
+Please feel free to reach out if you require any additional details.
+
+Thank you for your continued partnership.
+
+Team Fymble`;
+
+      const sendResult = await sendWhatsappMessage(targetPhone, message);
+
+      const isSuccess = sendResult && sendResult.status === "Success";
+      const newStatus = isSuccess ? "Success" : "Failed";
+
+      const updatedData = [...data];
+      updatedData[index] = {
+        ...item,
+        message: message,
+        sent_at: new Date(),
+        status: newStatus
+      };
+
+      setData(updatedData);
+      await AsyncStorage.setItem("payment_status", JSON.stringify(updatedData));
+
+      if (isSuccess) {
+        showToast("Success", "Message opened in WhatsApp", "success");
+      } else {
+        showToast("Failed", sendResult?.error || "Failed to send message", "error");
+      }
+    } catch (error) {
+      showToast("Error", error.message || "Failed to send", "error");
+    } finally {
+      setSingleSendingIndex(null);
+    }
+  };
+
+  const handlePhoneChange = async (text, index) => {
+    const updatedData = [...data];
+    updatedData[index] = {
+      ...updatedData[index],
+      alternative_phone: text
+    };
+    setData(updatedData);
+    try {
+      await AsyncStorage.setItem("payment_status", JSON.stringify(updatedData));
+    } catch (e) {
+      // ignore storage error
+    }
+  };
+
   const uploadFile = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -131,22 +248,16 @@ Team Fymble`;
       const file = result.assets[0];
       setFileName(file.name);
 
-      // Copy content:// URI to a local file in cache directory using the modern File API.
-      // This is crucial on Android because React Native's FormData/XMLHttpRequest
-      // cannot stream/read directly from content:// URIs during upload.
       const sourceFile = new File(file.uri);
       const localFile = new File(Paths.cache, file.name);
 
-      // Delete target cache file if it already exists to prevent FileSystemFile.copy from failing
       if (localFile.exists) {
         localFile.delete();
       }
 
       await sourceFile.copy(localFile);
 
-      // Decoded path is required on Android to avoid file uploader issues with %20 and special characters
       const localUri = Platform.OS === 'android' ? decodeURIComponent(localFile.uri) : localFile.uri;
-
 
       const formData = new FormData();
       formData.append("file", {
@@ -158,7 +269,6 @@ Team Fymble`;
 
       setLoading(true);
       const results = await uploadPaymentMessageExcel(formData);
-      // console.log("------results", results)
 
       if (results.status == 200) {
         await AsyncStorage.setItem("uploaded_file_name", file.name);
@@ -172,66 +282,21 @@ Team Fymble`;
         await AsyncStorage.setItem("payment_status", JSON.stringify(initialData));
         setTotalMessages(results.data.length);
         setShowConfirmModal(true);
-      }
-      else {
-        // console.log("------else",results)
-        setResponse("")
+      } else {
+        setResponse("");
         const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
         setFileName(storedFileName || "");
         setResponse(results.data || []);
         showToast("Error", results.message, "error");
       }
     } catch (error) {
-      // console.log("------error", error.message)
-      showToast("Error", error.message, "error");
+      showToast("Error", error.message || "error");
       const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
       setFileName(storedFileName || "");
     } finally {
       setLoading(false);
     }
   };
-
-
-  const sendWhatsappMessage = async (phone, message) => {
-    try {
-      let formattedPhone;
-      if (phone.length == 10) {
-        formattedPhone = "91" + phone;
-      }
-      else if (phone.length != 10) {
-        return {
-          status: "Failed",
-          error: "Invalid Contact"
-        };
-      }
-
-      const checkUrl = `whatsapp://send?phone=${formattedPhone}`;
-      const openWhats = await Linking.canOpenURL(checkUrl);
-
-      if (!openWhats) {
-        return {
-          status: "Failed",
-          error: "WhatsApp not installed"
-        };
-      }
-
-      const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-      await Linking.openURL(url);
-
-      return {
-        status: "Success",
-        error: null
-      }
-    } catch (error) {
-      // console.log("-----_error",error)
-      showToast("Error", error.message || error, "error")
-      return {
-        status: "Failed",
-        error: error.message || error
-      };
-    }
-  }
-
 
   const downloadExcel = async () => {
     try {
@@ -241,7 +306,6 @@ Team Fymble`;
       }
       setLoading(true);
       const res = await exportPaymentStatusExcel(data);
-      // console.log("Res", res)
       if (res.status === 200 && res.data && res.data[0]?.download_url) {
         const downloadUrl = `${apiConfig.API_URL}${res.data[0].download_url}`;
         const token = await SecureStore.getItemAsync("access_token");
@@ -260,24 +324,16 @@ Team Fymble`;
         );
 
         await Sharing.shareAsync(downloadResult.uri);
-
         showToast("Success", "Excel file downloaded successfully.", "success");
       } else {
         showToast("Error", res.message || "Failed to generate Excel file", "error");
       }
     } catch (error) {
-      // console.log("Error downloading excel", error);
       showToast("Error", error.message || "Failed to export Excel file", "error");
     } finally {
       setLoading(false);
     }
   };
-
-
-
-
-
-  // const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -306,7 +362,6 @@ Team Fymble`;
             <ActivityIndicator size="large" color="#4f46e5" />
           ) : (
             <View style={styles.uploadContent}>
-
               <View style={styles.uploadIconContainer}>
                 <Ionicons name="cloud-upload-outline" size={32} color="#4f46e5" />
               </View>
@@ -316,16 +371,14 @@ Team Fymble`;
           )}
         </TouchableOpacity>
 
-
         {fileName ? (
           <View style={styles.fileBadge}>
             <Ionicons name="document-text-outline" size={20} color="#475569" />
             <Text style={styles.fileNameText} numberOfLines={1} ellipsizeMode="middle">
-                  {fileName}
-                </Text>
+              {fileName}
+            </Text>
           </View>
         ) : null}
-
 
         {data && data.length > 0 && (
           <View style={styles.responseContainer}>
@@ -385,6 +438,59 @@ Team Fymble`;
                     <Text style={styles.detailValueAmount}>₹{item.amount ?? 0}</Text>
                   </View>
                 </View>
+
+                <View style={styles.cardDivider} />
+
+                {/* Clickable button to toggle Alternative Number input */}
+                <TouchableOpacity
+                  style={styles.altToggleButton}
+                  onPress={() => setOpenAltIndex(openAltIndex === index ? null : index)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={openAltIndex === index ? "chevron-up-circle-outline" : "add-circle-outline"}
+                    size={16}
+                    color="#4f46e5"
+                  />
+                  <Text style={styles.altToggleText}>
+                    {openAltIndex === index ? "Hide Alternative Number" : "Alternative Number"}
+                  </Text>
+                  <Text>(If primary number is not available on whatsapp add alternative number)</Text>
+                </TouchableOpacity>
+
+                {/* Displayed only on click */}
+                {openAltIndex === index && (
+                  <View style={styles.alternativeRowContainer}>
+                    <View style={styles.inputContainer}>
+                      <Ionicons name="call-outline" size={16} color="#64748b" style={styles.inputIcon} />
+                      <TextInput
+                        style={styles.alternativeInput}
+                        placeholder="Enter alternative number"
+                        placeholderTextColor="#94a3b8"
+                        value={item.alternative_phone || ""}
+                        onChangeText={(text) => handlePhoneChange(text, index)}
+                        keyboardType="phone-pad"
+                        maxLength={13}
+                        autoFocus={true}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      style={styles.singleSendButton}
+                      onPress={() => sendSingleMessage(index)}
+                      disabled={singleSendingIndex === index || loading}
+                      activeOpacity={0.7}
+                    >
+                      {singleSendingIndex === index ? (
+                        <ActivityIndicator size="small" color="#ffffff" />
+                      ) : (
+                        <>
+                          <Ionicons name="logo-whatsapp" size={15} color="#ffffff" />
+                          <Text style={styles.singleSendButtonText}>Send</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -406,7 +512,7 @@ Team Fymble`;
             <Text style={styles.modalDescription}>
               Successfully processed {data.length} records. Would you like to start sending WhatsApp messages automatically?
             </Text>
-            
+
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalCancelButton]}
@@ -417,7 +523,7 @@ Team Fymble`;
               >
                 <Text style={styles.modalCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalSendButton]}
                 onPress={() => {
@@ -446,19 +552,19 @@ Team Fymble`;
               Sending {currentMessageIndex} of {totalMessages}...
             </Text>
             <View style={styles.progressBarContainer}>
-              <View 
+              <View
                 style={[
-                  styles.progressBarFill, 
+                  styles.progressBarFill,
                   { width: `${totalMessages > 0 ? (currentMessageIndex / totalMessages) * 100 : 0}%` }
-                ]} 
+                ]}
               />
             </View>
           </View>
         </View>
       </Modal>
     </View>
-  )
-};
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -686,77 +792,59 @@ const styles = StyleSheet.create({
   textPending: {
     color: '#f59e0b',
   },
-  selectedFileContainer: {
-    backgroundColor: '#f0fdf4',
-    borderWidth: 1,
-    borderColor: '#bbf7d0',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
-    width: '100%',
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  selectedFileHeader: {
+  altToggleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    gap: 6,
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
   },
-  excelIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#dcfce7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  selectedFileDetails: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  selectedFileLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#15803d',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  selectedFileNameText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#166534',
-    paddingRight: 8,
-  },
-  clearFileButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedFileStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#dcfce7',
-    gap: 8,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#25D366',
-  },
-  statusText: {
+  altToggleText: {
     fontSize: 12,
-    color: '#166534',
     fontWeight: '600',
+    color: '#4f46e5',
+  },
+  alternativeRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    height: 38,
+  },
+  inputIcon: {
+    marginRight: 6,
+  },
+  alternativeInput: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+    paddingVertical: 0,
+  },
+  singleSendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#25D366',
+    height: 38,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    gap: 5,
+  },
+  singleSendButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   modalOverlay: {
     flex: 1,
@@ -847,5 +935,3 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
 });
-
-

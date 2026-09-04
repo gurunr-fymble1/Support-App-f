@@ -67,4 +67,28 @@ export const exportPaymentStatusExcel = async (data) => {
   return response.data;
 };
 
+export const uploadCustomMessageExcel = async (formData) => {
+  const token = await SecureStore.getItemAsync("access_token");
+  const response = await fetch(`${BASE_URL}/support/payment/custom-message`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      "Authorization": token ? `Bearer ${token}` : "",
+      "Accept": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { message: "Upload failed with status " + response.status };
+    }
+    throw new Error(errorData.message || "Upload failed");
+  }
+
+  return await response.json();
+};
+
 
