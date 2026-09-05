@@ -211,9 +211,11 @@ Team Fymble`;
       if (isSuccess) {
         showToast("Success", "Message opened in WhatsApp", "success");
       } else {
+        console.log("helooo")
         showToast("Failed", sendResult?.error || "Failed to send message", "error");
       }
     } catch (error) {
+      console.log("helooo error")
       showToast("Error", error.message || "Failed to send", "error");
     } finally {
       setSingleSendingIndex(null);
@@ -230,6 +232,7 @@ Team Fymble`;
     try {
       await AsyncStorage.setItem("payment_status", JSON.stringify(updatedData));
     } catch (e) {
+      console.log(e)
       // ignore storage error
     }
   };
@@ -248,22 +251,12 @@ Team Fymble`;
       const file = result.assets[0];
       setFileName(file.name);
 
-      const sourceFile = new File(file.uri);
-      const localFile = new File(Paths.cache, file.name);
-
-      if (localFile.exists) {
-        localFile.delete();
-      }
-
-      await sourceFile.copy(localFile);
-
-      const localUri = Platform.OS === 'android' ? decodeURIComponent(localFile.uri) : localFile.uri;
-
       const formData = new FormData();
       formData.append("file", {
-        uri: localUri,
+        uri: file.uri,
         name: file.name,
-        type: file.mimeType ||
+        type:
+          file.mimeType ||
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
@@ -287,9 +280,11 @@ Team Fymble`;
         const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
         setFileName(storedFileName || "");
         setResponse(results.data || []);
+        console.log(results)
         showToast("Error", results.message, "error");
       }
     } catch (error) {
+      console.log("error", error)
       showToast("Error", error.message || "error");
       const storedFileName = await AsyncStorage.getItem("uploaded_file_name");
       setFileName(storedFileName || "");

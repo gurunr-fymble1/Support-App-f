@@ -46,7 +46,7 @@ export const login = async (payload) => {
       error?.response?.data?.detail ||
       "Login failed. Please try again.";
 
-    showToast("Error", errorMsg??error?.response?.data, "error");
+    showToast("Error", errorMsg ?? error?.response?.data, "error");
     return { error: errorMsg };
   }
 };

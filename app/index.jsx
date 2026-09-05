@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
 import axios from "axios";
-import { showToast } from "../services/utils/Toaster";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import apiConfig from "../services/apiConfig";
+import { showToast } from "../services/utils/Toaster";
 
 const baseURL = apiConfig.API_URL;
 
@@ -43,7 +43,7 @@ export default function Index() {
         if (adminId) {
           try {
             // console.log("Refreshing token for admin_id:", adminId);
-            
+
             const refreshResponse = await axios.post(
               `${baseURL}/auth/refresh`,
               { id: adminId, role: storedRole },

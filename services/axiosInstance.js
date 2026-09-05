@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import * as Network from "expo-network";
 import { router } from "expo-router";
@@ -61,6 +60,9 @@ axiosInstance.interceptors.request.use(
 
       return Promise.reject(new Error("No internet connection"));
     }
+
+    config.headers["ngrok-skip-browser-warning"] = "true";
+    config.headers["Accept"] = "application/json";
 
     const token = await SecureStore.getItemAsync("access_token");
 
@@ -153,7 +155,11 @@ axiosInstance.interceptors.response.use(
     } else if (error.response) {
       // Handle other HTTP errors
       const errorMessage =
+        (typeof error.response.data?.detail === "string"
+          ? error.response.data.detail
+          : error.response.data?.detail?.[0]?.msg) ||
         error.response.data?.message ||
+        error.response.data?.error ||
         error.response.statusText ||
         "An error occurred";
 

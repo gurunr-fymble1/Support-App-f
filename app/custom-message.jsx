@@ -100,22 +100,13 @@ export default function CustomMessageScreen() {
       const file = result.assets[0];
       setFileName(file.name);
 
-      const sourceFile = new File(file.uri);
-      const localFile = new File(Paths.cache, file.name);
-
-      if (localFile.exists) {
-        localFile.delete();
-      }
-
-      await sourceFile.copy(localFile);
-
-      const localUri = Platform.OS === "android" ? decodeURIComponent(localFile.uri) : localFile.uri;
-
       const formData = new FormData();
       formData.append("file", {
-        uri: localUri,
+        uri: file.uri,
         name: file.name,
-        type: file.mimeType || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type:
+          file.mimeType ||
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       formData.append("message_template", messageTemplate);
 

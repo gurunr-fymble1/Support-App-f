@@ -1,4 +1,3 @@
-import * as SecureStore from "expo-secure-store";
 import apiConfig from "./apiConfig";
 import axiosInstance from "./axiosInstance";
 
@@ -39,27 +38,13 @@ export const getDailyPassBookings = async () => {
 
 // payment message to gym owners
 export const uploadPaymentMessageExcel = async (formData) => {
-  const token = await SecureStore.getItemAsync("access_token");
-  const response = await fetch(`${BASE_URL}/support/payment/message`, {
-    method: "POST",
-    body: formData,
+  const response = await axiosInstance.post(`/support/payment/message`, formData, {
     headers: {
-      "Authorization": token ? `Bearer ${token}` : "",
-      "Accept": "application/json",
+      "Content-Type": "multipart/form-data",
     },
   });
-
-  if (!response.ok) {
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch (e) {
-      errorData = { message: "Upload failed with status " + response.status };
-    }
-    throw new Error(errorData.message || "Upload failed");
-  }
-
-  return await response.json();
+  // console.log("response 293", response)
+  return response.data;
 };
 
 export const exportPaymentStatusExcel = async (data) => {
@@ -68,27 +53,13 @@ export const exportPaymentStatusExcel = async (data) => {
 };
 
 export const uploadCustomMessageExcel = async (formData) => {
-  const token = await SecureStore.getItemAsync("access_token");
-  const response = await fetch(`${BASE_URL}/support/payment/custom-message`, {
-    method: "POST",
-    body: formData,
+  const response = await axiosInstance.post(`/support/payment/custom-message`, formData, {
     headers: {
-      "Authorization": token ? `Bearer ${token}` : "",
-      "Accept": "application/json",
+      "Content-Type": "multipart/form-data",
     },
+    transformRequest: (data) => data,
   });
-
-  if (!response.ok) {
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch (e) {
-      errorData = { message: "Upload failed with status " + response.status };
-    }
-    throw new Error(errorData.message || "Upload failed");
-  }
-
-  return await response.json();
+  return response.data;
 };
 
 
