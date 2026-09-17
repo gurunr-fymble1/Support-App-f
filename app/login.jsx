@@ -9,6 +9,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -296,153 +297,160 @@ const LoginScreen = () => {
         <View style={styles.glowCircle1} pointerEvents="none" />
         <View style={styles.glowCircle2} pointerEvents="none" />
 
-        <View style={styles.card}>
-          {/* Logo / Brand */}
-          <View style={styles.logoContainer}>
-            <Image source={logo2} style={styles.logoImage} resizeMode="contain" />
-          </View>
-
-          {/* Dynamic Header Titles */}
-          <View style={styles.headerTextWrapper}>
-            <Text style={styles.welcomeText}>
-              {!isForget
-                ? "Welcome Back"
-                : forgetStep === "send_otp"
-                  ? "Forgot Password"
-                  : forgetStep === "verify_otp"
-                    ? "Verify OTP"
-                    : "Reset Password"}
-            </Text>
-            <Text style={styles.subtitleText}>
-              {!isForget
-                ? "Sign in to access support panel"
-                : forgetStep === "send_otp"
-                  ? "Enter your mobile number to receive verification code"
-                  : forgetStep === "verify_otp"
-                    ? `Enter the 6-digit code sent to ${contact}`
-                    : "Choose a strong new password"}
-            </Text>
-          </View>
-
-          {/* Step Progress indicators */}
-          {isForget && (
-            <View style={styles.stepProgressContainer}>
-              <View style={[styles.stepDot, styles.stepDotActive]}>
-                <Ionicons name="call" size={12} color="#fff" />
-              </View>
-              <View style={[styles.stepLine, forgetStep !== "send_otp" && styles.stepLineActive]} />
-              <View style={[styles.stepDot, (forgetStep === "verify_otp" || forgetStep === "reset_password") && styles.stepDotActive]}>
-                <Ionicons
-                  name="keypad"
-                  size={12}
-                  color={(forgetStep === "verify_otp" || forgetStep === "reset_password") ? "#fff" : "#94a3b8"}
-                />
-              </View>
-              <View style={[styles.stepLine, forgetStep === "reset_password" && styles.stepLineActive]} />
-              <View style={[styles.stepDot, forgetStep === "reset_password" && styles.stepDotActive]}>
-                <Ionicons
-                  name="lock-closed"
-                  size={12}
-                  color={forgetStep === "reset_password" ? "#fff" : "#94a3b8"}
-                />
-              </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.card}>
+            {/* Logo / Brand */}
+            <View style={styles.logoContainer}>
+              <Image source={logo2} style={styles.logoImage} resizeMode="contain" />
             </View>
-          )}
 
-          {/* Inputs */}
-          {(!isForget || forgetStep === "send_otp" || forgetStep === "verify_otp") && (
-            <StyledInput
-              placeholder="Phone Number"
-              value={contact}
-              onChangeText={handleContact}
-              keyboardType="phone-pad"
-              iconName="call-outline"
-              editable={!isForget || forgetStep === "send_otp"}
-              style={forgetStep === "verify_otp" ? { opacity: 0.6 } : undefined}
-            />
-          )}
-
-          {!isForget && (
-            <StyledInput
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              isSecureField
-              showValue={showPassword}
-              toggleSecure={() => setShowPassword(!showPassword)}
-              iconName="lock-closed-outline"
-            />
-          )}
-
-          {isForget && forgetStep === "verify_otp" && (
-            <StyledInput
-              placeholder="Enter OTP"
-              value={otp}
-              onChangeText={setOtp}
-              keyboardType="number-pad"
-              iconName="keypad-outline"
-            />
-          )}
-
-          {isForget && forgetStep === "reset_password" && (
-            <StyledInput
-              placeholder="New Password"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              isSecureField
-              showValue={showNewPassword}
-              toggleSecure={() => setShowNewPassword(!showNewPassword)}
-              iconName="lock-closed-outline"
-            />
-          )}
-
-          {/* Error */}
-          {error && (
-            <View style={styles.errorBox}>
-              <Ionicons
-                name="alert-circle-outline"
-                size={14}
-                color="#ef4444"
-                style={{ marginRight: 6 }}
-              />
-              <Text style={styles.errorText}>{error}</Text>
+            {/* Dynamic Header Titles */}
+            <View style={styles.headerTextWrapper}>
+              <Text style={styles.welcomeText}>
+                {!isForget
+                  ? "Welcome Back"
+                  : forgetStep === "send_otp"
+                    ? "Forgot Password"
+                    : forgetStep === "verify_otp"
+                      ? "Verify OTP"
+                      : "Reset Password"}
+              </Text>
+              <Text style={styles.subtitleText}>
+                {!isForget
+                  ? "Sign in to access support panel"
+                  : forgetStep === "send_otp"
+                    ? "Enter your mobile number to receive verification code"
+                    : forgetStep === "verify_otp"
+                      ? `Enter the 6-digit code sent to ${contact}`
+                      : "Choose a strong new password"}
+              </Text>
             </View>
-          )}
 
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={buttonConfig.handler}
-            disabled={loading}
-            activeOpacity={0.85}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <View style={styles.buttonInner}>
-                <Text style={styles.buttonText}>
-                  {buttonConfig.text}
-                </Text>
-                <Ionicons
-                  name={buttonConfig.icon}
-                  size={18}
-                  color="#fff"
-                />
+            {/* Step Progress indicators */}
+            {isForget && (
+              <View style={styles.stepProgressContainer}>
+                <View style={[styles.stepDot, styles.stepDotActive]}>
+                  <Ionicons name="call" size={12} color="#fff" />
+                </View>
+                <View style={[styles.stepLine, forgetStep !== "send_otp" && styles.stepLineActive]} />
+                <View style={[styles.stepDot, (forgetStep === "verify_otp" || forgetStep === "reset_password") && styles.stepDotActive]}>
+                  <Ionicons
+                    name="keypad"
+                    size={12}
+                    color={(forgetStep === "verify_otp" || forgetStep === "reset_password") ? "#fff" : "#94a3b8"}
+                  />
+                </View>
+                <View style={[styles.stepLine, forgetStep === "reset_password" && styles.stepLineActive]} />
+                <View style={[styles.stepDot, forgetStep === "reset_password" && styles.stepDotActive]}>
+                  <Ionicons
+                    name="lock-closed"
+                    size={12}
+                    color={forgetStep === "reset_password" ? "#fff" : "#94a3b8"}
+                  />
+                </View>
               </View>
             )}
-          </TouchableOpacity>
 
-          {/* Forgot / Back link */}
-          <TouchableOpacity
-            onPress={toggleForgetPasswordMode}
-            style={styles.linkButton}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.linkText}>
-              {isForget ? "← Back to Sign In" : "Forgot Password?"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {/* Inputs */}
+            {(!isForget || forgetStep === "send_otp" || forgetStep === "verify_otp") && (
+              <StyledInput
+                placeholder="Phone Number"
+                value={contact}
+                onChangeText={handleContact}
+                keyboardType="phone-pad"
+                iconName="call-outline"
+                editable={!isForget || forgetStep === "send_otp"}
+                style={forgetStep === "verify_otp" ? { opacity: 0.6 } : undefined}
+              />
+            )}
+
+            {!isForget && (
+              <StyledInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                isSecureField
+                showValue={showPassword}
+                toggleSecure={() => setShowPassword(!showPassword)}
+                iconName="lock-closed-outline"
+              />
+            )}
+
+            {isForget && forgetStep === "verify_otp" && (
+              <StyledInput
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="numeric"
+                iconName="keypad-outline"
+                maxLength={6}
+              />
+            )}
+
+            {isForget && forgetStep === "reset_password" && (
+              <StyledInput
+                placeholder="New Password"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                isSecureField
+                showValue={showNewPassword}
+                toggleSecure={() => setShowNewPassword(!showNewPassword)}
+                iconName="lock-closed-outline"
+              />
+            )}
+
+            {/* Error message */}
+            {error && (
+              <View style={styles.errorBox}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={14}
+                  color="#ef4444"
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={buttonConfig.handler}
+              disabled={loading}
+              activeOpacity={0.85}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <View style={styles.buttonInner}>
+                  <Text style={styles.buttonText}>
+                    {buttonConfig.text}
+                  </Text>
+                  <Ionicons
+                    name={buttonConfig.icon}
+                    size={18}
+                    color="#fff"
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Forgot / Back link */}
+            <TouchableOpacity
+              onPress={toggleForgetPasswordMode}
+              style={styles.linkButton}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.linkText}>
+                {isForget ? "← Back to Sign In" : "Forgot Password?"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
@@ -452,8 +460,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 24,
   },
   glowCircle1: {
     position: "absolute",

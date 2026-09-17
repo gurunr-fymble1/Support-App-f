@@ -8,6 +8,7 @@ import * as Sharing from "expo-sharing";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   ScrollView,
@@ -16,7 +17,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import * as DocumentPicker from "expo-document-picker";
@@ -496,66 +497,78 @@ Team Fymble`;
         visible={showConfirmModal}
         transparent={true}
         animationType="fade"
+        statusBarTranslucent={true}
         onRequestClose={() => setShowConfirmModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalIconContainer}>
-              <Ionicons name="logo-whatsapp" size={32} color="#25D366" />
-            </View>
-            <Text style={styles.modalTitle}>Send Messages?</Text>
-            <Text style={styles.modalDescription}>
-              Successfully processed {data.length} records. Would you like to start sending WhatsApp messages automatically?
-            </Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalIconContainer}>
+                <Ionicons name="logo-whatsapp" size={32} color="#25D366" />
+              </View>
+              <Text style={styles.modalTitle}>Send Messages?</Text>
+              <Text style={styles.modalDescription}>
+                Successfully processed {data.length} records. Would you like to start sending WhatsApp messages automatically?
+              </Text>
 
-            <View style={styles.modalButtonContainer}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalCancelButton]}
-                onPress={() => {
-                  setShowConfirmModal(false);
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.modalCancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalCancelButton]}
+                  onPress={() => {
+                    setShowConfirmModal(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalSendButton]}
-                onPress={() => {
-                  setShowConfirmModal(false);
-                  startSendingMessages();
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.modalSendButtonText}>Send</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalSendButton]}
+                  onPress={() => {
+                    setShowConfirmModal(false);
+                    startSendingMessages();
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.modalSendButtonText}>Send</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <Modal
         visible={sendingMessages}
         transparent={true}
         animationType="fade"
+        statusBarTranslucent={true}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ActivityIndicator size="large" color="#4f46e5" style={{ marginBottom: 16 }} />
-            <Text style={styles.modalTitle}>Sending Messages</Text>
-            <Text style={styles.modalDescription}>
-              Sending {currentMessageIndex} of {totalMessages}...
-            </Text>
-            <View style={styles.progressBarContainer}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${totalMessages > 0 ? (currentMessageIndex / totalMessages) * 100 : 0}%` }
-                ]}
-              />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <ActivityIndicator size="large" color="#4f46e5" style={{ marginBottom: 16 }} />
+              <Text style={styles.modalTitle}>Sending Messages</Text>
+              <Text style={styles.modalDescription}>
+                Sending {currentMessageIndex} of {totalMessages}...
+              </Text>
+              <View style={styles.progressBarContainer}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    { width: `${totalMessages > 0 ? (currentMessageIndex / totalMessages) * 100 : 0}%` }
+                  ]}
+                />
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

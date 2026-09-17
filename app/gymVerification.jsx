@@ -4,14 +4,17 @@ import { useEffect, useState, useCallback } from "react";
 import {
     ActivityIndicator,
     Alert,
+    FlatList,
     Image,
+    KeyboardAvoidingView,
     Modal,
     Platform,
-    StyleSheet, Text,
-    TextInput,
     StatusBar,
-    TouchableOpacity, View,
-    FlatList
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { GetGymVerification, UpdateGymVerification, UnverifyGymVerification } from "../services/gymVerification";
@@ -318,31 +321,37 @@ export default function GymVerificationScreen() {
                 visible={modalVisible}
                 animationType="slide"
                 transparent={true}
+                statusBarTranslucent={true}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <View style={Styles.modalOverlay}>
-                    <View style={Styles.modalContent}>
-                        <Text style={Styles.modalTitle}>Verify Gym</Text>
-                        <Text style={Styles.modalText}>Gym ID: {selectedItem?.gym_id}{"\n"}Gym: {selectedItem?.gym_name}</Text>
-                        <View style={Styles.modalButtons}>
-                            <TouchableOpacity
-                                style={[Styles.modalButton, Styles.cancelButton]}
-                                onPress={() => setModalVisible(false)}
-                            >
-                                <Text style={Styles.modalButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[Styles.modalButton, Styles.updateButton]}
-                                onPress={handleVerify}
-                                disabled={updating}
-                            >
-                                <Text style={Styles.modalButtonText}>
-                                    {updating ? "Updating..." : "Verify"}
-                                </Text>
-                            </TouchableOpacity>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
+                >
+                    <View style={Styles.modalOverlay}>
+                        <View style={Styles.modalContent}>
+                            <Text style={Styles.modalTitle}>Verify Gym</Text>
+                            <Text style={Styles.modalText}>Gym ID: {selectedItem?.gym_id}{"\n"}Gym: {selectedItem?.gym_name}</Text>
+                            <View style={Styles.modalButtons}>
+                                <TouchableOpacity
+                                    style={[Styles.modalButton, Styles.cancelButton]}
+                                    onPress={() => setModalVisible(false)}
+                                >
+                                    <Text style={Styles.modalButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[Styles.modalButton, Styles.updateButton]}
+                                    onPress={handleVerify}
+                                    disabled={updating}
+                                >
+                                    <Text style={Styles.modalButtonText}>
+                                        {updating ? "Updating..." : "Verify"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* ── Unverify Modal ────────────────────────────────────────── */}
@@ -350,62 +359,68 @@ export default function GymVerificationScreen() {
                 visible={unverifyModalVisible}
                 animationType="slide"
                 transparent={true}
+                statusBarTranslucent={true}
                 onRequestClose={() => setUnverifyModalVisible(false)}
             >
-                <View style={Styles.modalOverlay}>
-                    <View style={Styles.modalContent}>
-                        <Text style={Styles.modalTitle}>Unverify Gym</Text>
-                        <Text style={Styles.modalText}>Gym ID: {selectedItem?.gym_id}{"\n"}Gym: {selectedItem?.gym_name}</Text>
-                        
-                        <Text style={Styles.inputLabel}>Select Status Type:</Text>
-                        <View style={Styles.typeOptionsContainer}>
-                            {["red", "yellow", "green", "hold"].map((typeVal) => (
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
+                >
+                    <View style={Styles.modalOverlay}>
+                        <View style={Styles.modalContent}>
+                            <Text style={Styles.modalTitle}>Unverify Gym</Text>
+                            <Text style={Styles.modalText}>Gym ID: {selectedItem?.gym_id}{"\n"}Gym: {selectedItem?.gym_name}</Text>
+                            
+                            <Text style={Styles.inputLabel}>Select Status Type:</Text>
+                            <View style={Styles.typeOptionsContainer}>
+                                {["red", "yellow", "green", "hold"].map((typeVal) => (
+                                    <TouchableOpacity
+                                        key={typeVal}
+                                        style={[
+                                            Styles.typeOptionChip,
+                                            gymTypeInput === typeVal && Styles.activeTypeOptionChip
+                                        ]}
+                                        onPress={() => setGymTypeInput(typeVal)}
+                                    >
+                                        <Text style={[
+                                            Styles.typeOptionText,
+                                            gymTypeInput === typeVal && Styles.activeTypeOptionText
+                                        ]}>
+                                            {typeVal}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <Text style={Styles.inputLabel}>Or Enter Custom Type:</Text>
+                            <TextInput
+                                style={Styles.typeTextInput}
+                                value={gymTypeInput}
+                                onChangeText={setGymTypeInput}
+                                placeholder="e.g. red, yellow, block"
+                                placeholderTextColor="#94a3b8"
+                            />
+
+                            <View style={Styles.modalButtons}>
                                 <TouchableOpacity
-                                    key={typeVal}
-                                    style={[
-                                        Styles.typeOptionChip,
-                                        gymTypeInput === typeVal && Styles.activeTypeOptionChip
-                                    ]}
-                                    onPress={() => setGymTypeInput(typeVal)}
+                                    style={[Styles.modalButton, Styles.cancelButton]}
+                                    onPress={() => setUnverifyModalVisible(false)}
                                 >
-                                    <Text style={[
-                                        Styles.typeOptionText,
-                                        gymTypeInput === typeVal && Styles.activeTypeOptionText
-                                    ]}>
-                                        {typeVal}
+                                    <Text style={Styles.modalButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[Styles.modalButton, Styles.updateButton, { backgroundColor: "#f43f5e" }]}
+                                    onPress={handleUnverify}
+                                    disabled={updating}
+                                >
+                                    <Text style={Styles.modalButtonText}>
+                                        {updating ? "Updating..." : "Unverify"}
                                     </Text>
                                 </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <Text style={Styles.inputLabel}>Or Enter Custom Type:</Text>
-                        <TextInput
-                            style={Styles.typeTextInput}
-                            value={gymTypeInput}
-                            onChangeText={setGymTypeInput}
-                            placeholder="e.g. red, yellow, block"
-                            placeholderTextColor="#94a3b8"
-                        />
-
-                        <View style={Styles.modalButtons}>
-                            <TouchableOpacity
-                                style={[Styles.modalButton, Styles.cancelButton]}
-                                onPress={() => setUnverifyModalVisible(false)}
-                            >
-                                <Text style={Styles.modalButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[Styles.modalButton, Styles.updateButton, { backgroundColor: "#f43f5e" }]}
-                                onPress={handleUnverify}
-                                disabled={updating}
-                            >
-                                <Text style={Styles.modalButtonText}>
-                                    {updating ? "Updating..." : "Unverify"}
-                                </Text>
-                            </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

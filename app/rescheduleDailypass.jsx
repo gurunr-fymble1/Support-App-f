@@ -914,11 +914,12 @@ export default function RescheduleDailyPassScreen() {
                 <Modal
                     animationType="slide"
                     transparent={true}
+                    statusBarTranslucent={true}
                     visible={updateGymModalVisible}
                     onRequestClose={() => setUpdateGymModalVisible(false)}
                 >
                     <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : undefined}
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
                         style={{ flex: 1 }}
                     >
                         <View style={Styles.modalOverlay}>
@@ -1014,7 +1015,7 @@ export default function RescheduleDailyPassScreen() {
                     onRequestClose={() => setModalVisible(false)}
                 >
                     <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : undefined}
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
                         style={{ flex: 1 }}
                     >
                         <View style={Styles.modalOverlay}>
@@ -1184,7 +1185,7 @@ export default function RescheduleDailyPassScreen() {
                 >
 
                     <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : undefined}
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
                         style={{ flex: 1 }}
                     >
                         <View style={Styles.modalOverlay}>

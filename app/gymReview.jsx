@@ -6,6 +6,7 @@ import {
     ActivityIndicator,
     Alert,
     FlatList,
+    KeyboardAvoidingView,
     Modal,
     Platform,
     ScrollView,
@@ -204,17 +205,26 @@ export default function GymReviewScreen() {
                         if (hasMore && !loading && !loadingMore) {
                             fetchData(debouncedSearch, false);
                         }
-                    }} onEndReachedThreshold={0.2} ListFooterComponent={() => {
+                    }}
+                    onEndReachedThreshold={0.2}
+                    ListFooterComponent={() => {
                         if (!loadingMore) return null;
                         return (
                             <View style={{ paddingVertical: 20 }}><ActivityIndicator size="small" color="#6366f1" /></View>
                         );
-                    }} />
-            )}<Modal 
+                    }}
+                />
+            )}
+            <Modal 
                 visible={reviewsModalVisible} 
                 animationType="slide" 
-                transparent={true} 
+                transparent={true}
+                statusBarTranslucent={true}
                 onRequestClose={() => setReviewsModalVisible(false)}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
+                >
                     <View style={styles.modalOverlay}>  
                         <View style={styles.modalContent}>   
                             <View style={styles.modalHeader}>  
@@ -228,7 +238,8 @@ export default function GymReviewScreen() {
                             <ScrollView 
                                 style={styles.modalBody} 
                                 contentContainerStyle={{ paddingBottom: 30 }} 
-                                showsVerticalScrollIndicator={false}>  
+                                showsVerticalScrollIndicator={false}
+                                keyboardShouldPersistTaps="handled">  
                                 <Text style={styles.sectionHeader}>Reviews History</Text>
                                 {loadingReviews ? (
                                     <ActivityIndicator size="small" color="#6366f1" style={{ marginVertical: 20 }} />
@@ -236,28 +247,29 @@ export default function GymReviewScreen() {
                                     <View style={styles.noReviewsContainer}>
                                         <Ionicons name="chatbox-ellipses-outline" size={32} color="#94a3b8" />
                                         <Text style={styles.noReviewsText}>No reviews found for this gym.</Text>
-                                </View>
-                            ) : (
-                                reviews.map((reviewItem, index) => (
-                                    <View key={index} style={styles.reviewCard}>
-                                        <View style={styles.reviewHeader}>
-                                            <View style={styles.actionBadge}>
-                                                <Text style={styles.actionBadgeText}>{reviewItem.action || ""}</Text>
-                                            </View>
-                                            <Text style={styles.reviewDate}>{reviewItem.reviewed_on ? new Date(reviewItem.reviewed_on).toLocaleDateString() : ""}</Text>
-                                        </View>
-                                        <Text style={styles.reviewText}>{reviewItem.review || ""}</Text>
                                     </View>
-                                ))
-                            )}<View style={styles.modalDivider} />
-                            <Text style={styles.sectionHeader}>Write behavioral review</Text>
-                            <Text style={styles.inputLabel}>Action Type</Text>
-                            <TextInput 
-                                style={styles.textInput} 
-                                value={actionInput} 
-                                onChangeText={setActionInput} 
-                                placeholder="e.g. Unverifiy, Price Change...." 
-                                placeholderTextColor="#94a3b8" />
+                                ) : (
+                                    reviews.map((reviewItem, index) => (
+                                        <View key={index} style={styles.reviewCard}>
+                                            <View style={styles.reviewHeader}>
+                                                <View style={styles.actionBadge}>
+                                                    <Text style={styles.actionBadgeText}>{reviewItem.action || ""}</Text>
+                                                </View>
+                                                <Text style={styles.reviewDate}>{reviewItem.reviewed_on ? new Date(reviewItem.reviewed_on).toLocaleDateString() : ""}</Text>
+                                            </View>
+                                            <Text style={styles.reviewText}>{reviewItem.review || ""}</Text>
+                                        </View>
+                                    ))
+                                )}
+                                <View style={styles.modalDivider} />
+                                <Text style={styles.sectionHeader}>Write behavioral review</Text>
+                                <Text style={styles.inputLabel}>Action Type</Text>
+                                <TextInput 
+                                    style={styles.textInput} 
+                                    value={actionInput} 
+                                    onChangeText={setActionInput} 
+                                    placeholder="e.g. Unverifiy, Price Change...." 
+                                    placeholderTextColor="#94a3b8" />
                                 <Text style={styles.inputLabel}>Description / Notes</Text>
                                 <TextInput 
                                     style={[styles.textInput, styles.textAreaInput]} 
@@ -267,21 +279,22 @@ export default function GymReviewScreen() {
                                     placeholderTextColor="#94a3b8" 
                                     multiline={true} 
                                     numberOfLines={4} />
-                                    <TouchableOpacity 
-                                        style={[styles.submitButton, submittingReview && styles.disabledButton]} 
-                                        onPress={handleSubmitReview} 
-                                        disabled={submittingReview}> 
-                                        {submittingReview ? (
-                                            <ActivityIndicator size="small" color="#ffffff" />
-                                        ) : (
-                                            <Text style={styles.submitButtonText}>Submit Review</Text>
-                                        )}
-                                    </TouchableOpacity>
-                                </ScrollView>
-                            </View>
+                                <TouchableOpacity 
+                                    style={[styles.submitButton, submittingReview && styles.disabledButton]} 
+                                    onPress={handleSubmitReview} 
+                                    disabled={submittingReview}> 
+                                    {submittingReview ? (
+                                        <ActivityIndicator size="small" color="#ffffff" />
+                                    ) : (
+                                        <Text style={styles.submitButtonText}>Submit Review</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
-                    </Modal>
-                </View>
+                    </View>
+                </KeyboardAvoidingView>
+            </Modal>
+        </View>
     );
 }
 

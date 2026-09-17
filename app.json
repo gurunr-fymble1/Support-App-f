@@ -4,7 +4,7 @@
     "slug": "fymble-support",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/gym_support.jpg",
+    "icon": "./assets/images/gym_support.png",
     "scheme": "fymble-support",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,24 +14,25 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/gym_support.jpg",
-        "backgroundImage": "./assets/images/gym_support.jpg",
-        "monochromeImage": "./assets/images/gym_support.jpg"
+        "foregroundImage": "./assets/images/gym_support.png",
+        "backgroundImage": "./assets/images/gym_support.png",
+        "monochromeImage": "./assets/images/gym_support.png"
       },
+      "softwareKeyboardLayoutMode": "pan",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.gurunr.fymblesupport"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/gym_support.jpg"
+      "favicon": "./assets/images/gym_support.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/gym_support.jpg",
+          "image": "./assets/images/gym_support.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",

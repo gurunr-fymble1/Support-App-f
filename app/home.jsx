@@ -260,6 +260,24 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
           </View>
         </TouchableOpacity>
+
+        {/* Set Custom Daily & weekly pass price */}
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/custom-daily-weekly-pass-price")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.cardContent}>
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(37, 99, 235, 0.08)" }]}>
+              <Ionicons name="pricetags-outline" size={24} color="#2563eb" />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.cardTitle}>Set Custom Pass Price</Text>
+              <Text style={styles.cardSubtitle}>Set custom daily & weekly pass price</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+          </View>
+        </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.footerView}>

@@ -4,17 +4,18 @@ import { getBookingDetails, updateStatus } from "../services/BookingMessageServi
 import { showToast } from "../services/utils/Toaster";
 import { router } from "expo-router";
 import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
-  Platform,
   TextInput,
-  ActivityIndicator,
-  Modal,
-  TouchableWithoutFeedback
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 
 export default function RefundBookingScreen() {
@@ -165,78 +166,84 @@ export default function RefundBookingScreen() {
                 visible={selectedBooking !== null}
                 animationType="slide"
                 transparent={true}
+                statusBarTranslucent={true}
                 onRequestClose={() => setSelectedBooking(null)}
             >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setSelectedBooking(null)}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
                 >
-                    <TouchableWithoutFeedback>
-                        <View style={styles.detailsModalContent}>
-                            {selectedBooking && (
-                                <>
-                                    <View style={styles.detailsModalHeader}>
-                                        <Text style={styles.selectedBookingTitle}>Booking Details</Text>
-                                        <TouchableOpacity onPress={() => setSelectedBooking(null)} style={styles.closeButton}>
-                                            <Ionicons name="close" size={24} color="#64748b" />
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Payment ID</Text>
-                                        <Text style={styles.detailValue}>{selectedBooking.payment_id}</Text>
-                                    </View>
-
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Client Name</Text>
-                                        <Text style={styles.detailValue}>{selectedBooking.client_name}</Text>
-                                    </View>
-
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Gym Name</Text>
-                                        <Text style={styles.detailValue}>{selectedBooking.gym_name}</Text>
-                                    </View>
-
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Source Type</Text>
-                                        <Text style={styles.detailValue}>{selectedBooking.source_type || "N/A"}</Text>
-                                    </View>
-
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Payment Status</Text>
-                                        <View style={[
-                                            styles.statusBadge,
-                                            selectedBooking.status?.toLowerCase() === "refunded" ? styles.statusRefunded : styles.statusSuccess
-                                        ]}>
-                                            <Text style={styles.statusText}>{selectedBooking.status}</Text>
+                    <TouchableOpacity
+                        style={styles.modalOverlay}
+                        activeOpacity={1}
+                        onPress={() => setSelectedBooking(null)}
+                    >
+                        <TouchableWithoutFeedback>
+                            <View style={styles.detailsModalContent}>
+                                {selectedBooking && (
+                                    <>
+                                        <View style={styles.detailsModalHeader}>
+                                            <Text style={styles.selectedBookingTitle}>Booking Details</Text>
+                                            <TouchableOpacity onPress={() => setSelectedBooking(null)} style={styles.closeButton}>
+                                                <Ionicons name="close" size={24} color="#64748b" />
+                                            </TouchableOpacity>
                                         </View>
-                                    </View>
 
-                                    <View style={styles.detailRow}>
-                                        <Text style={styles.detailLabel}>Created At</Text>
-                                        <Text style={styles.detailValue}>
-                                            {selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : "N/A"}
-                                        </Text>
-                                    </View>
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Payment ID</Text>
+                                            <Text style={styles.detailValue}>{selectedBooking.payment_id}</Text>
+                                        </View>
 
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.refundButton,
-                                            selectedBooking.status?.toLowerCase() === "refunded" && styles.disabledRefundButton
-                                        ]}
-                                        onPress={() => setShowConfirmModal(true)}
-                                        disabled={loading || selectedBooking.status?.toLowerCase() === "refunded"}
-                                    >
-                                        <Text style={styles.refundButtonText}>
-                                            {selectedBooking.status?.toLowerCase() === "refunded" ? "Already Refunded" : "Refund Booking"}
-                                        </Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
-                    </TouchableWithoutFeedback>
-                </TouchableOpacity>
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Client Name</Text>
+                                            <Text style={styles.detailValue}>{selectedBooking.client_name}</Text>
+                                        </View>
+
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Gym Name</Text>
+                                            <Text style={styles.detailValue}>{selectedBooking.gym_name}</Text>
+                                        </View>
+
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Source Type</Text>
+                                            <Text style={styles.detailValue}>{selectedBooking.source_type || "N/A"}</Text>
+                                        </View>
+
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Payment Status</Text>
+                                            <View style={[
+                                                styles.statusBadge,
+                                                selectedBooking.status?.toLowerCase() === "refunded" ? styles.statusRefunded : styles.statusSuccess
+                                            ]}>
+                                                <Text style={styles.statusText}>{selectedBooking.status}</Text>
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.detailRow}>
+                                            <Text style={styles.detailLabel}>Created At</Text>
+                                            <Text style={styles.detailValue}>
+                                                {selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : "N/A"}
+                                            </Text>
+                                        </View>
+
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.refundButton,
+                                                selectedBooking.status?.toLowerCase() === "refunded" && styles.disabledRefundButton
+                                            ]}
+                                            onPress={() => setShowConfirmModal(true)}
+                                            disabled={loading || selectedBooking.status?.toLowerCase() === "refunded"}
+                                        >
+                                            <Text style={styles.refundButtonText}>
+                                                {selectedBooking.status?.toLowerCase() === "refunded" ? "Already Refunded" : "Refund Booking"}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </>
+                                )}
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </TouchableOpacity>
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* Confirmation Modal */}
@@ -244,35 +251,41 @@ export default function RefundBookingScreen() {
                 visible={showConfirmModal}
                 animationType="fade"
                 transparent={true}
+                statusBarTranslucent={true}
             >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Confirm Refund</Text>
-                        <Text style={styles.modalMessage}>
-                            Are you sure you want to refund this booking? This action cannot be undone.
-                        </Text>
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
-                                onPress={() => setShowConfirmModal(false)}
-                                disabled={loading}
-                            >
-                                <Text style={styles.modalButtonCancelText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.confirmButton]}
-                                onPress={handleRefund}
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator color="white" />
-                                ) : (
-                                    <Text style={styles.modalButtonConfirmText}>Confirm Refund</Text>
-                                )}
-                            </TouchableOpacity>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    style={{ flex: 1 }}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Confirm Refund</Text>
+                            <Text style={styles.modalMessage}>
+                                Are you sure you want to refund this booking? This action cannot be undone.
+                            </Text>
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.cancelButton]}
+                                    onPress={() => setShowConfirmModal(false)}
+                                    disabled={loading}
+                                >
+                                    <Text style={styles.modalButtonCancelText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.confirmButton]}
+                                    onPress={handleRefund}
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator color="white" />
+                                    ) : (
+                                        <Text style={styles.modalButtonConfirmText}>Confirm Refund</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     )

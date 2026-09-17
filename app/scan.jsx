@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, Modal, TouchableOpacity, Text, StatusBar } from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity, Text, StatusBar, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import QRScanner from "../components/QRScanner";
 import { scanQR } from "../services/qrService";
@@ -43,48 +43,53 @@ export default function ScanScreen() {
       <QRScanner onScan={handleScan} />
 
       {result && (
-        <Modal visible={!!result} transparent animationType="fade">
-          <View style={styles.overlay}>
-            <View style={styles.modal}>
-              <Text style={styles.title}>
-                {result?.error ? "Error" : "Gym Details"}
-              </Text>
+        <Modal visible={!!result} transparent animationType="fade" statusBarTranslucent={true}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
+            <View style={styles.overlay}>
+              <View style={styles.modal}>
+                <Text style={styles.title}>
+                  {result?.error ? "Error" : "Gym Details"}
+                </Text>
 
-              {result?.error ? (
-                <Text style={styles.errorText}>{result.message}</Text>
-              ) : (
-                <>
-                  <Text style={styles.detailText}>
-                    <Text style={styles.label}>ID: </Text>
-                    {result.id}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    <Text style={styles.label}>Name: </Text>
-                    {result.name}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    <Text style={styles.label}>Area: </Text>
-                    {result.area}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    <Text style={styles.label}>Location: </Text>
-                    {result.location}
-                  </Text>
-                </>
-              )}
+                {result?.error ? (
+                  <Text style={styles.errorText}>{result.message}</Text>
+                ) : (
+                  <>
+                    <Text style={styles.detailText}>
+                      <Text style={styles.label}>ID: </Text>
+                      {result.id}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      <Text style={styles.label}>Name: </Text>
+                      {result.name}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      <Text style={styles.label}>Area: </Text>
+                      {result.area}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      <Text style={styles.label}>Location: </Text>
+                      {result.location}
+                    </Text>
+                  </>
+                )}
 
-              <TouchableOpacity style={styles.button} onPress={handleScanAgain}>
-                <Text style={styles.buttonText}>Scan Again</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleScanAgain}>
+                  <Text style={styles.buttonText}>Scan Again</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.button, styles.backButton]}
-                onPress={handleBack}
-              >
-                <Text style={styles.buttonText}>Go Back</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.backButton]}
+                  onPress={handleBack}
+                >
+                  <Text style={styles.buttonText}>Go Back</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </Modal>
       )}
     </View>
