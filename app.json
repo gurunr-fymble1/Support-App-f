@@ -7,7 +7,6 @@
     "icon": "./assets/images/gym_support.png",
     "scheme": "fymble-support",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +18,6 @@
         "monochromeImage": "./assets/images/gym_support.png"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.gurunr.fymblesupport"
     },
@@ -42,7 +40,10 @@
         }
       ],
       "expo-secure-store",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      "expo-sharing",
+      "expo-web-browser"
     ],
     "extra": {
       "backendUrl": "https://app.fittbot.com",
