@@ -34,6 +34,14 @@ export default function CustomDailyWeeklyPassPriceScreen() {
   const [price14Days, setPrice14Days] = useState("");
   const [updating, setUpdating] = useState(false);
 
+  // Helper to extract prices list
+  const getGymPricesList = (gym) => {
+    if (!gym) return [];
+    if (Array.isArray(gym.prices)) return gym.prices;
+    if (Array.isArray(gym.packs)) return gym.packs;
+    return [];
+  };
+
   // Fetch Gym List / Details
   const handleFetchGyms = async () => {
     const trimmed = searchQuery.trim();
@@ -52,7 +60,16 @@ export default function CustomDailyWeeklyPassPriceScreen() {
       setLoadingGym(true);
       const data = await GetGymDetailsForPass(trimmed);
 
-      const list = Array.isArray(data) ? data : data ? [data] : [];
+      let list = [];
+      if (Array.isArray(data)) {
+        list = data;
+      } else if (Array.isArray(data?.gyms)) {
+        list = data.gyms;
+      } else if (Array.isArray(data?.data)) {
+        list = data.data;
+      } else if (data && typeof data === "object") {
+        list = [data];
+      }
 
       if (list.length === 0) {
         showToast("Not Found", "No gyms found matching your query", "error");
@@ -63,8 +80,14 @@ export default function CustomDailyWeeklyPassPriceScreen() {
       }
 
       setGymList(list);
-      setIsDropdownOpen(true);
-      showToast("Found", `Gyms fetched successfully. Please select one from the dropdown.`, "info");
+      if (list.length === 1) {
+        selectGymItem(list[0]);
+        setIsDropdownOpen(false);
+        showToast("Success", `Loaded ${list[0].name}`, "success");
+      } else {
+        setIsDropdownOpen(true);
+        showToast("Found", `Gyms fetched successfully. Please select one from the dropdown.`, "info");
+      }
     } catch (err) {
       const errorMsg =
         err?.response?.data?.detail ||
@@ -85,10 +108,11 @@ export default function CustomDailyWeeklyPassPriceScreen() {
     setSelectedGym(gym);
     setIsDropdownOpen(false);
 
-    // Pre-fill prices from packs array using owner_payout if available, fallback to legacy keys
-    const pack1 = gym?.packs?.find((p) => p.days === 1);
-    const pack7 = gym?.packs?.find((p) => p.days === 7);
-    const pack14 = gym?.packs?.find((p) => p.days === 14);
+    // Pre-fill prices from prices/packs array using owner_payout if available, fallback to legacy keys
+    const packsList = getGymPricesList(gym);
+    const pack1 = packsList.find((p) => p.days === 1);
+    const pack7 = packsList.find((p) => p.days === 7);
+    const pack14 = packsList.find((p) => p.days === 14);
 
     const day1 =
       pack1?.owner_payout ??
@@ -198,7 +222,17 @@ export default function CustomDailyWeeklyPassPriceScreen() {
       // Re-fetch fresh gym details and packs from backend
       try {
         const freshData = await GetGymDetailsForPass(selectedGym.gym_id);
-        const list = Array.isArray(freshData) ? freshData : freshData ? [freshData] : [];
+        let list = [];
+        if (Array.isArray(freshData)) {
+          list = freshData;
+        } else if (Array.isArray(freshData?.gyms)) {
+          list = freshData.gyms;
+        } else if (Array.isArray(freshData?.data)) {
+          list = freshData.data;
+        } else if (freshData && typeof freshData === "object") {
+          list = [freshData];
+        }
+
         if (list.length > 0) {
           const freshGym = list.find((g) => g.gym_id === selectedGym.gym_id) || list[0];
           selectGymItem(freshGym);
@@ -255,7 +289,7 @@ export default function CustomDailyWeeklyPassPriceScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         {/* Header */}
@@ -365,6 +399,7 @@ export default function CustomDailyWeeklyPassPriceScreen() {
                   >
                     {gymList.map((item, index) => {
                       const isSelected = selectedGym?.gym_id === item.gym_id;
+                      const itemPrices = getGymPricesList(item);
                       return (
                         <TouchableOpacity
                           key={item.gym_id || index}
@@ -420,17 +455,22 @@ export default function CustomDailyWeeklyPassPriceScreen() {
                               )}
                             </View>
 
-                            {/* Dropdown Packs Summary if present */}
-                            {Array.isArray(item.packs) && item.packs.length > 0 && (
+                            {/* Dropdown Packs Summary */}
+                            {itemPrices.length > 0 && (
                               <View style={styles.dropdownPacksRow}>
-                                {item.packs.map((p, pIdx) => (
+                                {itemPrices.map((p, pIdx) => (
                                   <View key={pIdx} style={styles.dropdownPackChip}>
                                     <Text style={styles.dropdownPackChipDays}>
                                       {p.label || `${p.days}D`}:
                                     </Text>
                                     <Text style={styles.dropdownPackChipPrice}>
-                                      ₹{p.owner_payout ?? p.customer_price ?? p.price ?? "-"}
+                                      ₹{Number(p.customer_price ?? p.price ?? p.owner_payout ?? 0).toLocaleString("en-IN")}
                                     </Text>
+                                    {p.owner_payout !== undefined && (
+                                      <Text style={styles.dropdownPackChipPayout}>
+                                        (Payout: ₹{Number(p.owner_payout).toLocaleString("en-IN")})
+                                      </Text>
+                                    )}
                                   </View>
                                 ))}
                               </View>
@@ -536,49 +576,59 @@ export default function CustomDailyWeeklyPassPriceScreen() {
                   </Text>
                 </View>
 
-                {/* {selectedGym.address && (
-                  <View style={styles.detailRow}>
-                    <Ionicons name="map-outline" size={16} color="#64748b" />
-                    <Text style={styles.detailText}>
-                      <Text style={styles.detailLabel}>Address: </Text>
-                      {selectedGym.address}
-                    </Text>
-                  </View>
-                )} */}
+                {/* Ultra-Compact Current Pass Prices & Breakdown */}
+                {(() => {
+                  const pricesList = getGymPricesList(selectedGym);
+                  if (pricesList.length === 0) return null;
 
-                {/* {(selectedGym.contact_number || selectedGym.phone) && (
-                  <View style={styles.detailRow}>
-                    <Ionicons name="call-outline" size={16} color="#64748b" />
-                    <Text style={styles.detailText}>
-                      <Text style={styles.detailLabel}>Contact: </Text>
-                      {selectedGym.contact_number || selectedGym.phone}
-                    </Text>
-                  </View>
-                )} */}
+                  return (
+                    <View style={styles.packsSectionContainer}>
+                      <View style={styles.packsSectionHeader}>
+                        <Ionicons name="pricetags-outline" size={13} color="#2563eb" />
+                        <Text style={styles.packsSectionTitle}>Current Pass Pricing & Breakdown</Text>
+                      </View>
 
-                {/* Compact Current Pass Prices */}
-                {Array.isArray(selectedGym.packs) && selectedGym.packs.length > 0 && (
-                  <View style={styles.compactPacksSection}>
-                    <Text style={styles.compactPacksTitle}>Current Pass Pricing</Text>
-                    <View style={styles.compactPacksRow}>
-                      {selectedGym.packs.map((pack, idx) => (
-                        <View key={idx} style={styles.compactPackChip}>
-                          <Text style={styles.compactPackName}>
-                            {pack.label || `${pack.days} Day`}
-                          </Text>
-                          <Text style={styles.compactPackPrice}>
-                            ₹{pack.customer_price ?? "-"}
-                          </Text>
-                          {pack.owner_payout !== undefined && (
-                            <Text style={styles.compactPackPayout}>
-                              Owner: ₹{pack.owner_payout}
-                            </Text>
-                          )}
-                        </View>
-                      ))}
+                      <View style={styles.packsCompactRow}>
+                        {pricesList.map((pack, idx) => (
+                          <View key={idx} style={styles.compactPackCard}>
+                            {/* Header: Title + Discount */}
+                            <View style={styles.compactCardTop}>
+                              <Text style={styles.compactCardTitle} numberOfLines={1}>
+                                {pack.label || `${pack.days} Day`}
+                              </Text>
+                              {/* {pack.discount_percent > 0 && (
+                                <View style={styles.compactDiscountBadge}>
+                                  <Text style={styles.compactDiscountText}>
+                                    {pack.discount_percent}%
+                                  </Text>
+                                </View>
+                              )} */}
+                            </View>
+
+
+                            {/* Owner Payout Row */}
+                            <View style={styles.compactDetailRow}>
+                              <Text style={styles.compactDetailLabel}>Owner:</Text>
+                              <Text style={styles.compactPayoutVal}>
+                                ₹{pack.owner_payout !== undefined ? Number(pack.owner_payout).toLocaleString("en-IN") : "-"}
+                              </Text>
+                            </View>
+
+                            
+                            {/* Customer Price Row */}
+                            <View style={styles.compactDetailRow}>
+                              <Text style={styles.compactDetailLabel}>Customer:</Text>
+                              <Text style={styles.compactPriceVal}>
+                                ₹{pack.customer_price !== undefined ? Number(pack.customer_price).toLocaleString("en-IN") : "-"}
+                              </Text>
+                            </View>
+
+                          </View>
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                )}
+                  );
+                })()}
               </View>
             </View>
           )}
@@ -794,7 +844,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 12,
     color: "#0f172a",
     height: "100%",
   },
@@ -933,6 +983,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#0f172a",
   },
+  dropdownPackChipPayout: {
+    fontSize: 10,
+    fontWeight: "500",
+    color: "#059669",
+  },
   miniBadge: {
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -1053,50 +1108,84 @@ const styles = StyleSheet.create({
     color: "#475569",
   },
 
-  // Compact Packs Section
-  compactPacksSection: {
-    marginTop: 8,
+  // Ultra-Compact Current Pass Pricing Breakdown
+  packsSectionContainer: {
+    marginTop: 1,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: "#f1f5f9",
   },
-  compactPacksTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#64748b",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  compactPacksRow: {
+  packsSectionHeader: {
     flexDirection: "row",
-    gap: 8,
+    alignItems: "center",
+    gap: 5,
+    marginBottom: 9,
   },
-  compactPackChip: {
+  packsSectionTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#64748b",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  packsCompactRow: {
+    flexDirection: "row",
+    gap: 5,
+    maxWidth: 300,
+  },
+  compactPackCard: {
     flex: 1,
+    maxWidth: 95,
     backgroundColor: "#f8fafc",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "#e2e8f0",
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  compactCardTop: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 1,
+    gap: 1,
   },
-  compactPackName: {
+  compactCardTitle: {
     fontSize: 11,
-    fontWeight: "600",
-    color: "#64748b",
-    marginBottom: 2,
+    fontWeight: "700",
+    color: "#1d4ed8",
+    flexShrink: 1,
   },
-  compactPackPrice: {
-    fontSize: 15,
+  compactDiscountBadge: {
+    backgroundColor: "#fef2f2",
+    paddingHorizontal: 2,
+    paddingVertical: 0,
+    borderRadius: 2,
+  },
+  compactDiscountText: {
+    fontSize: 7.5,
+    fontWeight: "700",
+    color: "#dc2626",
+  },
+  compactDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 1,
+  },
+  compactDetailLabel: {
+    fontSize: 11,
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  compactPriceVal: {
+    fontSize: 9.5,
     fontWeight: "700",
     color: "#0f172a",
-    marginBottom: 2,
   },
-  compactPackPayout: {
-    fontSize: 10,
-    fontWeight: "500",
+  compactPayoutVal: {
+    fontSize: 9.5,
+    fontWeight: "700",
     color: "#059669",
   },
 

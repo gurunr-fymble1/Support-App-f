@@ -35,6 +35,7 @@ const StyledInput = ({
   isSecureField,
   showValue,
   style,
+  autoCapitalize,
   ...rest
 }) => {
   return (
@@ -54,7 +55,7 @@ const StyledInput = ({
         keyboardType={keyboardType || "default"}
         style={[styles.textInput, style]}
         selectionColor="#eb5757"
-        autoCapitalize="none"
+        autoCapitalize={autoCapitalize !== undefined ? autoCapitalize : (isSecureField ? "sentences" : "none")}
         {...rest}
       />
       {isSecureField && (
@@ -284,11 +285,12 @@ const LoginScreen = () => {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      {/* <StatusBar barStyle="dark-content" backgroundColor="#ffffff" /> */}
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
       <View style={styles.container}>
         {/* Background Gradient */}
         <LinearGradient
-          colors={["#ffe5e5ff", "#f8fafc", "#f6a1a1ff"]}
+          colors={["#f9d8d8ff", "#ffffff", "#f99393ff"]}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -371,6 +373,7 @@ const LoginScreen = () => {
             {!isForget && (
               <StyledInput
                 placeholder="Password"
+                autoCapitalize="sentences"
                 value={password}
                 onChangeText={setPassword}
                 isSecureField
@@ -394,6 +397,7 @@ const LoginScreen = () => {
             {isForget && forgetStep === "reset_password" && (
               <StyledInput
                 placeholder="New Password"
+                autoCapitalize="sentences"
                 value={newPassword}
                 onChangeText={setNewPassword}
                 isSecureField
@@ -459,8 +463,9 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "transparent",
   },
+
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",

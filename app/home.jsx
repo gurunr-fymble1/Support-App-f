@@ -122,24 +122,24 @@ export default function HomeScreen() {
         {/* Quick Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(244, 63, 94, 0.08)" }]}>
-              <Ionicons name="pricetags-outline" size={20} color="#f43f5e" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(244, 63, 94, 0.10)" }]}>
+              <Ionicons name="ticket" size={20} color="#f43f5e" />
             </View>
             <Text style={styles.statNumber}>{countD}</Text>
             <Text style={styles.statLabel}>Daily Pass</Text>
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(139, 92, 246, 0.08)" }]}>
-              <Ionicons name="calendar-outline" size={20} color="#8b5cf6" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(139, 92, 246, 0.10)" }]}>
+              <Ionicons name="calendar" size={20} color="#8b5cf6" />
             </View>
             <Text style={styles.statNumber}>{countS}</Text>
             <Text style={styles.statLabel}>Sessions</Text>
           </View>
 
           <View style={styles.statCard}>
-            <View style={[styles.statIconContainer, { backgroundColor: "rgba(6, 182, 212, 0.08)" }]}>
-              <Ionicons name="barbell-outline" size={20} color="#06b6d4" />
+            <View style={[styles.statIconContainer, { backgroundColor: "rgba(2, 132, 199, 0.10)" }]}>
+              <Ionicons name="barbell" size={20} color="#0284c7" />
             </View>
             <Text style={styles.statNumber}>{countM}</Text>
             <Text style={styles.statLabel}>Membership</Text>
@@ -152,7 +152,6 @@ export default function HomeScreen() {
           <View style={styles.sectionDivider} />
         </View>
 
-        
         {/* Daily Pass Card */}
         <TouchableOpacity
           style={styles.actionCard}
@@ -160,14 +159,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(244, 63, 94, 0.08)" }]}>
-              <Ionicons name="pricetags-outline" size={24} color="#f43f5e" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(244, 63, 94, 0.10)" }]}>
+              <Ionicons name="ticket" size={24} color="#f43f5e" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Daily Pass</Text>
               <Text style={styles.cardSubtitle}>View & manage daily passes</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -178,14 +177,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(139, 92, 246, 0.08)" }]}>
-              <Ionicons name="calendar-outline" size={24} color="#8b5cf6" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(139, 92, 246, 0.10)" }]}>
+              <Ionicons name="calendar" size={24} color="#8b5cf6" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Sessions</Text>
               <Text style={styles.cardSubtitle}>View & manage sessions</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -196,14 +195,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(6, 182, 212, 0.08)" }]}>
-              <Ionicons name="barbell-outline" size={24} color="#06b6d4" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(2, 132, 199, 0.10)" }]}>
+              <Ionicons name="barbell" size={24} color="#0284c7" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Memberships</Text>
               <Text style={styles.cardSubtitle}>View client membership details</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -214,14 +213,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(252, 150, 150, 0.24)" }]}>
-              <MaterialIcons name="reviews" size={24} color="#ff5757" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(245, 158, 11, 0.10)" }]}>
+              <Ionicons name="star" size={24} color="#f59e0b" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Review Gyms</Text>
               <Text style={styles.cardSubtitle}>Write about Gym/Owner</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -232,14 +231,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(16, 185, 129, 0.08)" }]}>
-              <Ionicons name="qr-code-outline" size={24} color="#10b981" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(16, 185, 129, 0.10)" }]}>
+              <Ionicons name="qr-code" size={24} color="#10b981" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>QR Code Scanner</Text>
               <Text style={styles.cardSubtitle}>Scan and verify Gym QR's</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -250,14 +249,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(37, 211, 102, 0.08)" }]}>
-              <Ionicons name="chatbubble-ellipses-outline" size={24} color="#25D366" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(37, 211, 102, 0.10)" }]}>
+              <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Custom Message</Text>
               <Text style={styles.cardSubtitle}>Send custom WhatsApp messages</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
 
@@ -268,14 +267,14 @@ export default function HomeScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardContent}>
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(37, 99, 235, 0.08)" }]}>
-              <Ionicons name="pricetags-outline" size={24} color="#2563eb" />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(99, 102, 241, 0.10)" }]}>
+              <Ionicons name="pricetags" size={24} color="#6366f1" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.cardTitle}>Set Custom Pass Price</Text>
               <Text style={styles.cardSubtitle}>Set custom daily & weekly pass price</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#a1a1aa" />
+            <Ionicons name="chevron-forward" size={18} color="#cbd5e1" />
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -286,7 +285,7 @@ export default function HomeScreen() {
           style={styles.footerButton}
           activeOpacity={0.7}
         >
-          <Ionicons name="calendar-outline" size={22} color="#71717a" style={styles.footerIcon} />
+          <Ionicons name="calendar" size={22} color="#6366f1" style={styles.footerIcon} />
           <Text style={styles.footerText}>Reschedule</Text>
         </TouchableOpacity>
 
@@ -295,7 +294,7 @@ export default function HomeScreen() {
           style={styles.footerButton}
           activeOpacity={0.7}
         >
-          <Ionicons name="checkmark-circle-outline" size={22} color="#71717a" style={styles.footerIcon} />
+          <Ionicons name="shield-checkmark" size={22} color="#10b981" style={styles.footerIcon} />
           <Text style={styles.footerText}>Gym Verify</Text>
         </TouchableOpacity>
 
@@ -304,7 +303,7 @@ export default function HomeScreen() {
           style={styles.footerButton}
           activeOpacity={0.7}
         >
-          <Ionicons name="wallet-outline" size={22} color="#71717a" style={styles.footerIcon} />
+          <Ionicons name="wallet" size={22} color="#0284c7" style={styles.footerIcon} />
           <Text style={styles.footerText}>Payment-Msg</Text>
         </TouchableOpacity>
 
@@ -313,7 +312,7 @@ export default function HomeScreen() {
           style={styles.footerButton}
           activeOpacity={0.7}
         >
-          <Ionicons name="cash-outline" size={22} color="#71717a" style={styles.footerIcon} />
+          <Ionicons name="cash" size={22} color="#f43f5e" style={styles.footerIcon} />
           <Text style={styles.footerText}>Refund</Text>
         </TouchableOpacity>
       </View>
